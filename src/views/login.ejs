@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ICS Recruitment</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row mt-5"></div>
+    </div>
+    <div class="container">
+        <div class="row">
+          <div class="col">
+              
+          </div>
+          <div class="col-md-10">
+                <div class="col-md-12">
+                    <h2 style="align-self:center;margin-left:150px;" class="col-md-12">RECRUITMENT</h2>
+                    <br>
+                </div>
+              <div class="col-md-12">
+                    <input type="email" id="email" name="email" class="col-md-12 form-control" placeholder="Enter your email">
+              </div>
+              <div class="col-md-12 mt-3">
+                <input type="password" id="password" name="password" class="col-md-12 form-control" placeholder="Enter your password">
+              </div>
+              <div class="col-md-12 mt-3">
+                    <button id="login" class="login btn btn-primary col-md-12">Login</button>
+              </div>
+          </div>
+          <div class="col">
+                <div style="margin-top:10px;">
+                    <pre id="jsonData"></pre>
+                </div>
+          </div>
+        </div>
+    </div>
+      <script src="./js/jquery.min.js"></script>
+      <script src="./js/bootstrap.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.3/xlsx.full.min.js"></script>
+      <script>
+           
+
+            const btn = document.getElementById("login");
+            btn.addEventListener("click", submitForm);
+
+            function submitForm()
+            {
+                var email = document.getElementById("email").value;
+                var password = document.getElementById("password").value;
+                if(email == ""){
+                     alert("Enter username");
+                } else if(password == "") {
+                     alert("Enter password");
+                } else {
+                    // const user = new FormData();
+                    // user.append("email", email);
+                    // user.append("password", password);
+                    //  fetch('/api/login', 
+                    //  { 
+                    //      method: 'POST',
+                    //      body: formData
+                    //  }).then(json => console.log("Answer " + json))
+                    //    .catch(err => console.error("Reject " + err));
+                    var user = {
+                        email: $("#email").val(),
+                        password:$("#password").val()
+                    }
+                    $.ajax(
+                    {
+                        url: '/api/login',
+                        type: 'post',
+                        data : JSON.stringify(user),
+                        contentType: 'application/json',
+                        success: function (data) {
+                            // console.log(data);
+                            if(localStorage.length == 0)
+                            {
+                                localStorage.setItem('token', data.userToken);
+                                localStorage.setItem('id', data.userData.id);
+                                localStorage.setItem('email', data.userData.email);
+                                window.location.href = data.redirectTo;
+                                goToDashboard(data);
+                            } else {
+                                console.log("One");
+                                window.location.href = data.redirectTo;
+                            }
+
+                            // $('#target').html(data.msg);
+                            // sessionStorage.setItem('token', data.userToken);
+                            // sessionStorage.setItem('id', data.userData.id);
+                            // sessionStorage.setItem('email', data.userData.email);
+                        },
+                        error : function(err){
+                            console.log(err.message);
+                        }
+                    });
+                }
+            };
+
+            function goToDashboard(data)
+            {
+                
+                $.ajax(
+                {
+                    url: '/dashboard',
+                    type: 'GET',
+                    crossDomain : true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        "Authorization": 'Bearer ' + localStorage.getItem("token"),
+                        "Accept": "application/json",
+                        "cache-control": "no-cache"
+                      },
+                    success: function (data) 
+                    {
+                        // $('#target').html(data.msg);
+                            console.log("Inside Dashbaord i enter");
+                            if(localStorage.length == 0)
+                            {
+                                window.location.href = data.redirectTo;
+                            }
+                    },
+                    error : function(err){
+                        console.log(err.message);
+                    }
+                });
+            }
+
+      </script>
+</body>
+</html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>ICS Recruitment : Dashboard</title>
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row mt-5"></div>
+    </div>
+    <div class="container">
+        <div class="row">
+          <div class="col">
+              
+          </div>
+          <div class="col">
+                <div class="col-md-12">
+                    <h2 style="align-self:center;" class="">Welcome <span id="username"></span></h2>
+                    <br>
+                </div>
+                <div class="col-md-12">
+                    <button id="getinfo" class="btn btn-primary" style="align-self:center;" class="">Get More Information</button>
+                    <button id="logout" class="btn btn-primary" style="align-self:center;" class="">Logout</button>
+                    <br>
+                </div>
+          </div>
+        </div>
+    </div>
+      <script src="./js/jquery.min.js"></script>
+      <script src="./js/bootstrap.min.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.15.3/xlsx.full.min.js"></script>
+      <script>
+
+            window.onload = function()
+            {
+                if(localStorage.length == 0)
+                {
+                    $.ajax(
+                    {
+                        url: '/dashboard',
+                        type: 'GET',
+                        contentType: 'application/json',
+                        success: function (data) 
+                        {
+                            console.log(data);
+                            console.log({ "Local Storage Length On All User Type" : localStorage.length});
+                            window.location.href = data.redirectTo;
+                        },
+                        error : function(err){
+                            console.log(err.message);
+                        }
+                    });
+                }
+            }
+         
+            let userName = localStorage.getItem("email");
+            document.getElementById("username").innerHTML = userName;
+
+            //cookies
+            let cooky = document.cookie.bct;
+            console.log({ "The name of the cookie is => " : cooky });
+              
+            let getInfo = document.getElementById("getinfo");
+            getInfo.onclick = function()
+            {
+                $.ajax(
+                {
+                    url: 'http://127.0.0.1:3000/api/logout/every',
+                    type: 'GET',
+                    crossDomain : true,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': data.length,
+                        "Authorization": 'Bearer ' + localStorage.getItem("token"),
+                        "Accept": "application/json",
+                        "cache-control": "no-cache"
+                      },
+                    success: function (data) 
+                    {
+                        // $('#target').html(data.msg);
+                            console.log({ "Local Storage Length On All User Type" : localStorage.length});
+                            if(localStorage.length == 0)
+                            {
+                                window.location.href = data.redirectTo;
+                            }
+                    },
+                    error : function(err){
+                        console.log(err.message);
+                    }
+                });
+            }
+              
+              let signOut = document.getElementById("logout");
+              signOut.onclick = function()
+              {
+                  $.ajax(
+                  {
+                      url: 'http://127.0.0.1:3000/api/logout',
+                      type: 'post',
+                      contentType: 'application/json',
+                      success: function (data) 
+                      {
+                        localStorage.clear();   
+                        console.log({ "Local Storage Length On Logout" : localStorage.length});
+                        if(localStorage.length == 0)
+                        {
+                            window.location.href = data.redirectTo;
+                        }
+                      },
+                      error : function(err){
+                          console.log(err.message);
+                      }
+                  });
+              }
+      </script>
+</body>
+</html>
