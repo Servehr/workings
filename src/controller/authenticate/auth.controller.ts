@@ -19,7 +19,7 @@ class AuthController implements IController {
 
     private initializeRoutes(): void
     {
-        this.router.post(`${this.path}/testing`,
+        this.router.get(`${this.path}/testing`,
             // validateMiddleware(validate.testing),
             this.testing
         )
