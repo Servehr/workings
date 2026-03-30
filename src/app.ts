@@ -1,5 +1,5 @@
-import express, { Application } from 'express';
-import mongoose from 'mongoose';
+import express, { Application, ErrorRequestHandler, NextFunction } from 'express';
+import mongoose, { Error } from 'mongoose';
 import compression from 'compression';
 import morgan from 'morgan';
 import Controller from '@/interfaceIController';
@@ -29,7 +29,7 @@ class App {
 
     private initializeMiddleware() : void 
     {
-        const { BASE_URL, DB } = process.env;
+        const { BASE_URL, DB, ORIGIN } = process.env;
         
         this.express.use(express.json())
         this.express.use(cookieParser())
@@ -38,7 +38,7 @@ class App {
         this.express.use(helmet())
         this.express.use(cors(
           {
-            origin: 'http://localhost:6417',
+            origin: ORIGIN,
             credentials: true
           }
         ))
@@ -67,9 +67,10 @@ class App {
         // ) 
         // *************************************************8   
         
-        this.express.use(morgan('dev'));
-        this.express.use(express.urlencoded({ extended: false }));
-        this.express.use(compression());
+        this.express.use(morgan('dev'))
+        this.express.use(express.urlencoded({ extended: false }))
+        this.express.use(compression())
+        // this.express.use(this.errorHandler)
     }
 
     private initializeControllers(controllers: Controller[]): void
@@ -87,10 +88,25 @@ class App {
 
     private initializeDatabaseConnection(): void
     {
-        const { BASE_URL, DB } = process.env
-        // mongoose.connect(`mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`);
-        mongoose.connect(`${BASE_URL}/${DB}`)
+        try 
+        {            
+            const { BASE_URL, DB, MONGO_USER, MONGO_PASSWORD, MONGO_PATH } = process.env
+            // mongoose.connect(`mongodb+srv://servertstng_db_user:4UHxad6iC0pHLcsf@technicians.kje4vz6.mongodb.net/?appName=technicians`)
+            // mongoose.connect(`mongodb://${MONGO_USER}:${MONGO_PASSWORD}${MONGO_PATH}`)
+            mongoose.connect(`${BASE_URL}/${DB}`)            
+        } catch (error) {
+            console.log("Connection to server failed")
+        }
     }
+
+    // private errorHandler: ErrorRequestHandler = (
+    //     error: Error,
+    //     req: Request,
+    //     res: Response,
+    //     next: NextFunction
+    // ) => {
+    //     console.log(error)
+    // }
 
     public listen(): void
     {
