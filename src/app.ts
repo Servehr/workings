@@ -38,7 +38,7 @@ class App {
         this.express.use(helmet())
         this.express.use(cors(
           {
-            origin: ORIGIN,
+            origin: 'https://work-cbng.onrender.com',
             credentials: true
           }
         ))
