@@ -10,6 +10,7 @@ import bodyParser from 'body-parser';
 import errorMiddleware from './middleware/error/error.middleware';
 import helmet from 'helmet';
 import MongoStore from 'connect-mongo';
+import { Request } from "express";
 
 
 class App {
@@ -36,10 +37,11 @@ class App {
         this.express.use(bodyParser.json())
 
         this.express.use(helmet())
+
         this.express.use(cors(
           {
-            origin: 'https://work-cbng.onrender.com',
-            credentials: true
+            origin: ['http://localhost:6417', 'https://work-cbng.onrender.com'],
+            optionsSuccessStatus: 200
           }
         ))
 

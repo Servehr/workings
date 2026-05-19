@@ -13,26 +13,27 @@ async function authenticateMiddleware(
     const bearer = req.headers.authorization;
     if(!bearer || !bearer.startsWith('Bearer '))
     {
-        return next(new HttpException(401, 'Unauthorized'))
+        return next(new HttpException(401, 'Unauthorized mmmm'))
     }
     try 
     {
         const accessToken = bearer?.split('Bearer ')[1].trim()
+        console.log(accessToken)
         const payload: IToken | VerifyErrors = await verifyToken(accessToken)
         if(payload instanceof jwt.JsonWebTokenError)
         {
-            return next(new HttpException(401, 'Unauthorized'))
+            return next(new HttpException(401, 'Unauthorized x'))
         }
         const user = await User.findById(payload.id)
                     .select('password')
                     .exec()
         if(!user)
         {
-           return next(new HttpException(401, 'UnAuthorized'))
+           return next(new HttpException(401, 'UnAuthorized +'))
         }
         return next()
     } catch (error: any) {
-        return next(new HttpException(401, 'Unauthorized'))
+        return next(new HttpException(401, 'Unauthorized #'))
     }
 
 }

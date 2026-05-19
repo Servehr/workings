@@ -117,6 +117,7 @@ class AuthController implements IController {
     ): Promise<any> => {
         try {
             const { email, password } = req.body
+            console.log(req.body)
             const newUser = await this.authService.login(email, password)
 
             let token = createToken(newUser)

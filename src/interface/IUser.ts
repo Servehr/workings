@@ -11,7 +11,7 @@ export default interface IUser extends Document
     userType: string;
     lastLoggedIn: string;
     token: string;
-    roles: string;
+    role: string;
     deletedAt: Date;
 
     isValidPassword(password: string): Promise<Error | boolean>

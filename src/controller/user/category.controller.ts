@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from "express";
 import IController from "@/interfaceIController";
 import authenticateMiddleware from "@/middleware/validation/authenticated.middleware";
-import CategoryService from "@/service/category.service";
+import CategoryService from "@/service/management/category.service";
 
 
 class CategoryController implements IController {
@@ -27,8 +27,8 @@ class CategoryController implements IController {
         next: NextFunction
     ): Promise<Response | void> => 
     {
-        const allUsers = await this.categoryService.categories()
-        res.status(200).json(allUsers)
+        // const allUsers = await this.categoryService.categories()
+        // res.status(200).json(allUsers)
     }
 
 }
