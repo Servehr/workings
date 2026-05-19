@@ -4,7 +4,8 @@ import { model, Schema }   from 'mongoose'
 const RoleSchema = new Schema(
     { 
         name:           {   type : String, maxlength : 130, unique : true, required : [true, 'role name is required'] },
-        description:    {   type : String, maxlength : 100, required : [true, 'provide role description'] }
+        description:    {   type : String, maxlength : 100, required : [true, 'provide role description'] },
+        deletedAt:       {  type : Date, default : null  },
     },
     { timestamps : true }
 );

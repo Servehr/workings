@@ -1,48 +1,13 @@
-import mongoose from 'mongoose';
-mongoose.Promise  =   global.Promise;
-const Action        =   mongoose.Schema;
+import { model, Schema } from 'mongoose';
 
  
-const actionSchema = new Action(
+const AktionSchema = new Schema(
     { 
-        name:           {   type : String, maxlength : 130, unique : true, required : [true, 'action name is required'] },
-        description:    {   type : String, maxlength : 100, required : [true, 'provide description for action'] }
+        name:           {   type : String, maxlength : 130, unique : true, required : [true, 'Category name is required'] },
+        description:    {   type : String, maxlength : 100, required : [true, 'Provide category description'] },
+        deletedAt:       {  type : Date, default : null  },
     },
     { timestamps : true }
 );
 
-actionSchema.statics.findActionById = function(id: number)
-{
-    // do something;
-    return this.where('_id').equals(id).count();
-    // next();
-};
-
-actionSchema.statics.countActions = function()
-{
-    // do something;
-    return this.find({}).count();
-    // next();
-};
-
-actionSchema.statics.doesActionExist = function(actionId: number)
-{
-    // do something;
-    return this.where('_id').equals(actionId).count();
-    // next();
-};
-
-actionSchema.statics.checkIfActionExist = function(actionName: string)
-{
-    // do something;
-    return this.where('name').equals(actionName).count();
-    // next();
-};
-
-actionSchema.statics.allAction = async function()
-{
-    return await this.find({});
-    // next();
-};
-
-module.exports = mongoose.model('Action', actionSchema); 
+export default model<any>('Aktion', AktionSchema) 

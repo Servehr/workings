@@ -19,6 +19,10 @@ class AuthController implements IController {
 
     private initializeRoutes(): void
     {
+        this.router.get(`${this.path}/testing`,
+            // validateMiddleware(validate.testing),
+            this.testing
+        )
         this.router.post(`${this.path}/register`,
             // validateMiddleware(validate.register),
             this.register
@@ -50,6 +54,15 @@ class AuthController implements IController {
         )
         this.router.post(`${this.path}/is-user-in-session`, IsAuthenticated, this.isInSession
         )
+    }
+
+    private testing = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        
+        res.status(200).json("I got tested")
     }
 
     private register = async (
@@ -104,6 +117,7 @@ class AuthController implements IController {
     ): Promise<any> => {
         try {
             const { email, password } = req.body
+            console.log(req.body)
             const newUser = await this.authService.login(email, password)
 
             let token = createToken(newUser)
