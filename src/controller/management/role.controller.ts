@@ -49,7 +49,11 @@ class RoleController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        const categories = await this.roleService.roles();
+        
+        const page = req.query.page
+        const limit = req.query.limit
+
+        const categories = await this.roleService.roles(Number(page), Number(limit));
         const data: { message: string, data: object, statusCode: number } = 
         {
           message: 'All Roles',
@@ -162,6 +166,7 @@ class RoleController implements IController {
         try 
         {
             const { role } = req?.body
+            console.log(req?.body)
             if(!mongoose.isValidObjectId(role) || !role) 
             {    
                const data: { message: string, data: object, statusCode: number } = 

@@ -49,8 +49,11 @@ class DepartmentController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
+        
+        const page = req.query.page
+        const limit = req.query.limit
 
-        const categories = await this.departmentService.departments();
+        const categories = await this.departmentService.departments(Number(page), Number(limit))
         const data: { message: string, data: object, statusCode: number } = 
         {
           message: 'All departments',
@@ -163,6 +166,7 @@ class DepartmentController implements IController {
         try 
         {
             const { department } = req?.body
+            console.log(req.body)
             if(!mongoose.isValidObjectId(department) || !department) 
             {    
                const data: { message: string, data: object, statusCode: number } = 

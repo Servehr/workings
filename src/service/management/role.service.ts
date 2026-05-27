@@ -2,6 +2,7 @@ import Role from "@/model/role";
 import Privilege from "@/model/privilege";
 import Department from "@/model/department";
 import mongoose from "mongoose";
+import { paginate } from "@/utils/pagination";
 
 
 
@@ -9,18 +10,9 @@ import mongoose from "mongoose";
 class RoleService {
 
     
-    public async roles(): Promise<Error | String | any>
+    public async roles(page: number, limit: number): Promise<Error | String | any>
     {
-       return await Role.find(
-          {  
-            $or: [
-              { "newField": true },
-              { "newField": { "$exists": false } }
-            ], 
-            deletedAt: null   
-          },
-          { name: 1, description: 1 }
-       ) 
+      return await paginate(Role, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', null)    
     }
 
 

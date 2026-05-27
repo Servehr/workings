@@ -46,7 +46,11 @@ class RexourceController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        const rexource = await this.rexourceService.rexources();
+        
+        const page = req.query.page
+        const limit = req.query.limit
+
+        const rexource = await this.rexourceService.rexources(Number(page), Number(limit));
         const data: { message: string, data: object, statusCode: number } = 
         {
           message: 'All Resource',
@@ -64,6 +68,7 @@ class RexourceController implements IController {
         try 
         {
             const { name, description } = req?.body
+            console.log(req?.body)
             if(!name || !description)
             {                
                 const data: { message: string, data: object, statusCode: number } = 

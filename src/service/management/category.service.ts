@@ -10,7 +10,7 @@ class CategoryService {
     
     public async categories(page: number, limit: number): Promise<Error | String | any>
     {
-      //  return await Category.find(
+      // return await Category.find(
       //     {  
       //       $or: [
       //         { "newField": true },
@@ -24,14 +24,13 @@ class CategoryService {
       //       match: { deletedAt: null },
       //       select: '_id name description'
       //  })
-      console.log({ page, limit })
+      
       const children = {      
          path: 'divisions',
          match: { deletedAt: null },
          select: '_id name description'
       }
       return await paginate(Category, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', children)    
-              
     }
 
 
