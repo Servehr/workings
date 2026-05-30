@@ -1,5 +1,5 @@
-import Aktion from "@/model/action";
-import Page from "@/model/page"
+import Aktion from "@/model/management/aktion";
+import Page from "@/model/management/page"
 
 
 class ActionService {

@@ -62,6 +62,10 @@ class UserController implements IController {
         this.router.get(`${this.path}/:user`,
             // validateMiddleware(validate.register),
             this.searchUser
+        )  
+        this.router.post(`${this.path}/fast-response`,
+            // validateMiddleware(validate.register),
+            this.fastResponse
         )
     }
 
@@ -474,6 +478,38 @@ class UserController implements IController {
              message: 'subscribers',
              statusCode: 200,
              data: subscribers 
+           }
+           res.status(200).json(RESPONSE)
+        } catch (error: any) {
+            const err = JSON.parse(error.message)
+            const errMsg = err.message 
+            const code = err.statusCode
+            
+            const data: any = 
+            {
+               message: errMsg,
+               data: { },
+               statusCode: code
+            }
+            res.status(code).json(data)
+        }
+    }    
+    private fastResponse = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+
+        try
+        {
+          const { firstname, surname, phone, email, message } = req?.body
+          console.log(req?.body)
+          const formResponse = await this.userService.fastResponse(firstname, surname, phone, email, message)
+          let RESPONSE: { message: string, statusCode: number, data: any } = 
+           {
+             message: 'Form Sent',
+             statusCode: 200,
+             data: formResponse 
            }
            res.status(200).json(RESPONSE)
         } catch (error: any) {

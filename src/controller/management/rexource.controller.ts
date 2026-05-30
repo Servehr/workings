@@ -68,7 +68,6 @@ class RexourceController implements IController {
         try 
         {
             const { name, description } = req?.body
-            console.log(req?.body)
             if(!name || !description)
             {                
                 const data: { message: string, data: object, statusCode: number } = 

@@ -35,7 +35,7 @@ export const paginate = async <T extends Document>(model: Model<T>, filter: Filt
   {
     data = await model.find(filter, projection)
       .sort(options.sort || { _id: -1 })
-      .populate(populate)
+      .populate([populate])
       .skip(skip)
       .limit(limit)
       .select(field)

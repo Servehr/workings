@@ -2,7 +2,6 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import ActionService from "@/service/management/action.service";
 import mongoose from "mongoose";
-import page from "@/model/page";
 
 
 class ActionController implements IController {

@@ -58,7 +58,10 @@ class PageController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        const pages = await this.pageService.pages();
+        
+        const page = req.query.page
+        const limit = req.query.limit
+        const pages = await this.pageService.pages(Number(page), Number(limit));
         const data: { message: string, data: object, statusCode: number } = 
         {
           message: 'All Pages',
@@ -297,6 +300,7 @@ class PageController implements IController {
         try 
         {
             const { rexource, pages } = req?.body
+            console.log(req?.body)
             if(!mongoose.isValidObjectId(rexource) || !rexource) 
             {    
                const data: { message: string, data: object, statusCode: number } = 
@@ -332,6 +336,7 @@ class PageController implements IController {
             const err = JSON.parse(error.message)
             const errMsg = err.message 
             const code = err.statusCode
+            console.log(error)
             
             const data: { message: string, data: object, statusCode: number } = 
             {

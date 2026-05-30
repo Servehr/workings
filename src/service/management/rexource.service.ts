@@ -1,4 +1,4 @@
-import Rexource from "@/model/rexource";
+import Rexource from "@/model/management/rexource";
 import { paginate } from "@/utils/pagination";
 
 
