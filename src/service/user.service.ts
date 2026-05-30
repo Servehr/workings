@@ -9,6 +9,7 @@ import IUser from "@/interfaceIUser";
 import Newsletter from "@/model/newsletter";
 import { hasSubscribers } from "diagnostics_channel";
 import { paginate } from "@/utils/pagination";
+import fastForm from "@/model/management/fast-response"
 
 
 
@@ -285,6 +286,12 @@ class UserService {
       //  )  
        const susbcriptions = await paginate(Newsletter, { deletedAt: null }, { page: 1, limit: 5, sort: { _id: 1 } }, 'email -_id', '')    
        return susbcriptions
+    }
+
+    public async fastResponse(firstname: string, surname: string, phone: string, email: string, message: string)
+    {
+       await fastForm.create({firstname, surname, phone, email, message})
+       return       
     }
 
 

@@ -1,27 +1,25 @@
-import Page from "@/model/page";
-import Rexource from "@/model/rexource";
+import Page from "@/model/management/page";
+import Rexource from "@/model/management/rexource";
+import { paginate } from "@/utils/pagination";
 import mongoose from "mongoose";
 
 
 class PageService {
 
     
-    public async pages(): Promise<Error | String | any>
+    public async pages(page: number, limit: number): Promise<Error | String | any>
     {
-        return await Page.find(
-          {  
-            $or: [
-              { "newField": true },
-              { "newField": { "$exists": false } }
-            ], 
-            deletedAt: null   
-          },
-          { name: 1, description: 1, actions: 1 }
-        ).populate({
-            path: 'actions',
-            match: { deletedAt: null },
-            select: '_id name description'
-        }) 
+      const children = {      
+         path: 'aktions',
+         match: { deletedAt: null },
+         select: '_id name description'
+      }  
+      const parent = {      
+         path: 'aktions',
+         match: { deletedAt: null },
+         select: '_id name description'
+      }      
+      return await paginate(Page, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', children)    
     }
 
     public async create(name: string, description: string): Promise<Error | string | any>
@@ -152,7 +150,7 @@ class PageService {
             ValidPage.push(pages[index])
          }
        }
-
+       console.log("1")
        if(InvalidPage?.length > 0)
        {
          let RESPONSE: { message: string, statusCode: number, data: any } = 
@@ -169,6 +167,7 @@ class PageService {
        let Invalid: string[] = []
        let Valid: string[] = []
 
+       console.log("2")
        let ConnectedPageId: string[] = []
        if(connectedPages?.pages?.length > 0)
        {
@@ -206,6 +205,7 @@ class PageService {
          }
 
          //  console.log(Valid)
+         console.log("3")
          let ValidPagesName: string[] = []
          for (let index = 0; index < Valid.length; index++) 
          {
@@ -220,6 +220,7 @@ class PageService {
             { $push: { pages: Valid } }, 
             { new: true }
          )
+         console.log("4")
 
          let message = `${TheValidPagesName} attached to ${''}`
          if(Invalid?.length > 0)
@@ -228,7 +229,7 @@ class PageService {
          }
          return message
        } else {
-           
+           console.log("5")
            let ConnectPageName: string[] = []
            for (let index = 0; index < ValidPage.length; index++) 
            {

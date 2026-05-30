@@ -24,6 +24,9 @@ class DivisionController implements IController {
             // validateMiddleware(validate.register),
             this.create
         )
+        this.router.get(`${this.path}/category`, 
+            this.categoryDivision
+        )
         this.router.put(`${this.path}/update`,
             // validateMiddleware(validate.register),
             this.update
@@ -46,11 +49,36 @@ class DivisionController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        const categories = await this.divisionService.divisions();
+        console.log("c")
+        const page = req.query.page
+        const limit = req.query.limit
+
+        console.log("Checking what happened")
+
+        const divisions = await this.divisionService.divisions(Number(page), Number(limit));
         const data: { message: string, data: object, statusCode: number } = 
         {
           message: 'All Division',
-          data: categories,
+          data: divisions,
+          statusCode: 200
+        }
+        res.status(200).json(data)
+    }
+    
+    private categoryDivision = async (req: Request,
+        res: Response,
+        next: NextFunction
+    ) : Promise<Response | void> => {
+        console.log("a")
+        const page = req.query.page
+        const limit = req.query.limit
+        const cateory = req.query.category as string
+
+        const divisions = await this.divisionService.categoryDivision(cateory, Number(page), Number(limit))
+        const data: { message: string, data: object, statusCode: number } = 
+        {
+          message: 'Division',
+          data: divisions,
           statusCode: 200
         }
         res.status(200).json(data)
@@ -63,7 +91,9 @@ class DivisionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
+            console.log("b")
             const { category, name, description } = req?.body
+            console.log(req?.body)
             if(!name || !description)
             {                
                 const data: { message: string, data: object, statusCode: number } = 
@@ -74,7 +104,7 @@ class DivisionController implements IController {
                 }
                 res.status(404).json(data)
             } else {
-                const NewlyCreated = await this.divisionService.create(category.toLowerCase(), name.toLowerCase(), description.toLowerCase())
+                const NewlyCreated = await this.divisionService.create(category, name, description)
                 const data: { message: string, data: object, statusCode: number } = 
                 {
                     message: `${NewlyCreated} created`,
@@ -105,8 +135,9 @@ class DivisionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            const { category, name, description } = req?.body
-            if(!mongoose.isValidObjectId(category)) 
+            console.log("d")
+            const { division, name, description } = req?.body
+            if(!mongoose.isValidObjectId(division)) 
             {    
                const data: { message: string, data: object, statusCode: number } = 
                {
@@ -127,7 +158,7 @@ class DivisionController implements IController {
                 }
                 res.status(404).json(data)
             } else {
-                await this.divisionService.update(category, name.toLowerCase(), description.toLowerCase())
+                await this.divisionService.update(division, name.toLowerCase(), description.toLowerCase())
                 const data: { message: string, data: object, statusCode: number } = 
                 {
                     message: 'Category updated',
@@ -158,18 +189,19 @@ class DivisionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            const { category } = req?.body
-            if(!mongoose.isValidObjectId(category) || !category) 
+            console.log("e")
+            const { division } = req?.body
+            if(!mongoose.isValidObjectId(division) || !division) 
             {    
                const data: { message: string, data: object, statusCode: number } = 
                {
-                  message: 'Invalid parameter passed',
+                  message: 'Invalid parameter passed 11',
                   data: { },
                   statusCode: 404
                }
                res.status(404).json(data)
             } else {
-                const deetedAt = await this.divisionService.remove(category)
+                const deetedAt = await this.divisionService.remove(division)
                 const data: { message: string, data: object, statusCode: number } = 
                 {
                     message: `${deetedAt} deleted`,
@@ -200,6 +232,7 @@ class DivisionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
+            console.log("f")
             const { category } = req?.body
             if(!mongoose.isValidObjectId(category) || !category) 
             {    
@@ -242,6 +275,7 @@ class DivisionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
+            console.log("g")
             const { category, division } = req?.body
             if(!mongoose.isValidObjectId(category) || !mongoose.isValidObjectId(division)) 
             {    

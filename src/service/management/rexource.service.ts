@@ -1,4 +1,5 @@
-import Rexource from "@/model/rexource";
+import Rexource from "@/model/management/rexource";
+import { paginate } from "@/utils/pagination";
 
 
 
@@ -6,22 +7,14 @@ import Rexource from "@/model/rexource";
 class RexourceService {
 
     
-    public async rexources(): Promise<Error | String | any>
+    public async rexources(page: number, limit: number): Promise<Error | String | any>
     {
-        return await Rexource.find(
-          {  
-            $or: [
-              { "newField": true },
-              { "newField": { "$exists": false } }
-            ], 
-            deletedAt: null   
-          },
-          { name: 1, description: 1, pages: 1 }
-        ).populate({
-            path: 'pages',
-            match: { deletedAt: null },
-            select: '_id name description'
-        })
+      const children = {      
+         path: 'pages',
+         match: { deletedAt: null },
+         select: '_id name description'
+      }      
+      return await paginate(Rexource, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', children)    
     }
 
 

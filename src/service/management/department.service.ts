@@ -1,5 +1,6 @@
 import Department from "@/model/department";
 import Privilege from "@/model/privilege";
+import { paginate } from "@/utils/pagination";
 
 
 
@@ -7,22 +8,14 @@ import Privilege from "@/model/privilege";
 class DepartmentService {
 
     
-    public async departments(): Promise<Error | String | any>
+    public async departments(page: number, limit: number): Promise<Error | String | any>
     {
-        return await Department.find(
-          {  
-            $or: [
-              { "newField": true },
-              { "newField": { "$exists": false } }
-            ], 
-            deletedAt: null   
-          },
-          { name: 1, description: 1, roles: 1 }
-        ).populate({
-            path: 'roles',
-            match: { deletedAt: null },
-            select: '_id name description'
-        }) 
+      // const children = {      
+      //    path: 'divisions',
+      //    match: { deletedAt: null },
+      //    select: '_id name description'
+      // }
+      return await paginate(Department, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', null)    
     }
 
 

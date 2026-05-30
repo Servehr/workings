@@ -40,7 +40,7 @@ const app = new App(
         new CountryController(),
         new StateController(),
         new LgaController(),
-        new NotificationController()
+        new NotificationController(),
     ], 
     Number(process.env.PORT)
 );
