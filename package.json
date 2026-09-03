@@ -54,10 +54,13 @@
     "@types/nodemon": "^1.19.2",
     "@types/validator": "^13.7.14",
     "axios": "^1.15.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "connect-mongo": "^6.0.0",
     "connect-mongodb-session": "^5.0.0",
     "date-fns": "^4.1.0",
     "pusher": "^5.3.3",
+    "reflect-metadata": "^0.2.2",
     "twilio": "^6.0.0"
   },
   "_moduleAliases": {
@@ -69,6 +72,8 @@
     "@/controller": "dist/controller",
     "@/exception": "dist/exception",
     "@/helper": "dist/helper",
-    "@/model": "dist/model"
+    "@/model": "dist/model",
+    "@/validations": "dist/validations",
+    "@/decorators": "dist/decorators"
   }
 }

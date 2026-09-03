@@ -36,7 +36,6 @@ class CategoryService {
 
     public async create(name: string, description: string): Promise<Error | string | any>
     {
-      console.log({ name, description })
       await Category.create({ name, description })
       return name
     }

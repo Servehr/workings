@@ -18,9 +18,6 @@ class DivisionService {
 
     public async create(category: string, name: string, description: string): Promise<Error | string | any>
     {
-       console.log("#######################")
-       console.log({ category, name, description })
-       console.log("#######################")
        const division = await Division.create({ category, name, description })
        await Category.findByIdAndUpdate(category, 
          { $push: { divisions: division?._id } }, 

@@ -85,7 +85,6 @@ const permission = {
             {
                 if(!err)
                 {
-                    console.log(privilege);
                     return privilege;
                 }
             })

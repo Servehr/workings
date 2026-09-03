@@ -10,6 +10,7 @@ import { differenceInDays, format, formatDistance, isAfter } from 'date-fns'
 import ResetPassword from "@/model/reset-password";
 import ResetPasswordHistory from "@/model/reset-password-history";
 import { sendEmailToUserForgot } from "@/helper/send-email-forgot";
+import { responseFormat } from "@/utils/response-format";
 
 
 
@@ -28,12 +29,7 @@ class AuthService {
       const user = await User.findOne({ email });
       if(user)
       { 
-        let RESPONSE: { message: string, statusCode: number, data: any } = {
-          message: 'User with email already exist',
-          statusCode: 404,
-          data: null
-        }
-        throw new Error(JSON.stringify(RESPONSE));
+        responseFormat('User with email already exist', 400, null)
       }
       const { BACKEND_URL } = process.env;
        

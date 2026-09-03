@@ -19,6 +19,7 @@ import StateController from './controller/management/location/state.controller';
 import LgaController from './controller/management/location/lga.controller';
 import NotificationController from './controller/settings/notification.controller';
 import UserController from './controller/management/user.controller';
+import AboutController from './controller/cms/about.controller';
 
 validateEnv();
 
@@ -41,6 +42,7 @@ const app = new App(
         new StateController(),
         new LgaController(),
         new NotificationController(),
+        new AboutController()
     ], 
     Number(process.env.PORT)
 );
