@@ -166,7 +166,6 @@ class DepartmentController implements IController {
         try 
         {
             const { department } = req?.body
-            console.log(req.body)
             if(!mongoose.isValidObjectId(department) || !department) 
             {    
                const data: { message: string, data: object, statusCode: number } = 
@@ -293,7 +292,6 @@ class DepartmentController implements IController {
         try 
         {
             const department = req.params.department
-            console.log(department)
             if(!mongoose.isValidObjectId(department) || !department) 
             {    
                const data: { message: string, data: object, statusCode: number } = 

@@ -7,10 +7,11 @@ import cors from 'cors';
 import session from 'express-session';
 import cookieParser from  'cookie-parser';
 import bodyParser from 'body-parser';
-import errorMiddleware from './middleware/error/error.middleware';
+import errorMiddleware from '@/middleware/error/error.middleware';
 import helmet from 'helmet';
 import MongoStore from 'connect-mongo';
 import { Request } from "express";
+import { responseEnhancer } from './middleware/response.middleware';
 
 
 class App {
@@ -45,6 +46,9 @@ class App {
           }
         ))
 
+        this.express.use(responseEnhancer)
+        // app.use(responseEnhancer);
+
         // *************************************************8
         // const store = MongoStore.create({
         //    mongoUrl: `${BASE_URL}/${DB}`,
@@ -73,6 +77,7 @@ class App {
         this.express.use(express.urlencoded({ extended: false }))
         this.express.use(compression())
         // this.express.use(this.errorHandler)
+
     }
 
     private initializeControllers(controllers: Controller[]): void
@@ -81,11 +86,6 @@ class App {
         {
             this.express.use('/api', controller.router);
         });
-    }
-
-    private initializeErrorHandling(): void
-    {
-        this.express.use(errorMiddleware);
     }
 
     private initializeDatabaseConnection(): void
@@ -109,6 +109,11 @@ class App {
     // ) => {
     //     console.log(error)
     // }
+
+    private initializeErrorHandling(): void
+    {
+        this.express.use((errorMiddleware));
+    }
 
     public listen(): void
     {

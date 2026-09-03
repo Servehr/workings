@@ -145,7 +145,7 @@ class PageController implements IController {
                 await this.pageService.update(page, name.toLowerCase(), description.toLowerCase())
                 const data: { message: string, data: object, statusCode: number } = 
                 {
-                    message: 'Resource updated',
+                    message: 'Page updated',
                     data: { },
                     statusCode: 200
                 }
@@ -300,7 +300,6 @@ class PageController implements IController {
         try 
         {
             const { rexource, pages } = req?.body
-            console.log(req?.body)
             if(!mongoose.isValidObjectId(rexource) || !rexource) 
             {    
                const data: { message: string, data: object, statusCode: number } = 
@@ -336,7 +335,6 @@ class PageController implements IController {
             const err = JSON.parse(error.message)
             const errMsg = err.message 
             const code = err.statusCode
-            console.log(error)
             
             const data: { message: string, data: object, statusCode: number } = 
             {

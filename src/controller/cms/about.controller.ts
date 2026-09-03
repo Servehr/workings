@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import AboutService from "@/service/cms/about.service";
 import mongoose from "mongoose";
+import { errorProps } from "@/utils/response-format";
 
 
 class AboutController implements IController {
@@ -28,20 +29,19 @@ class AboutController implements IController {
             // validateMiddleware(validate.register),
             this.update
         )
+        this.router.post(`${this.path}/remove`,
+            // validateMiddleware(validate.register),
+            this.remove
+        )
     }
 
     private aboutus = async (req: Request,
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        const plans = await this.aboutService.aboutus();
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All plans',
-          data: plans,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+
+        const about = await this.aboutService.aboutus();
+        return res.sendSuccess(about, `Created`);
     }
 
     private create = async (
@@ -51,38 +51,15 @@ class AboutController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            const { aboutus } = req?.body
-            if(!aboutus)
-            {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
-            } else {
-                const NewlyCreated = await this.aboutService.create(aboutus)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
-            }
+            const { title, aboutus, images } = req?.body
+            await this.aboutService.create(title, aboutus, images)
+            return res.sendSuccess({}, `Created`);
+
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -93,49 +70,34 @@ class AboutController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            const { about, aboutus } = req?.body
-            if(!mongoose.isValidObjectId(about)) 
-            {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
-            }
+            const { about, title, aboutus, image } = req?.body
+            await this.aboutService.update(about, title, aboutus, image)
+            return res.sendSuccess({}, `Updated`);
 
-            if(!aboutus)
-            {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
-            } else {
-                await this.aboutService.update(about, aboutus)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'about content updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
-            }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
+        }
+    }
+
+    private remove = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try 
+        {
+            const { about } = req?.body
+            await this.aboutService.remove(about)
+            return res.sendSuccess({}, `Removed`);
+
+        } catch (error: any) {
+            
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
        

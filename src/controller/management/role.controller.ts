@@ -166,7 +166,7 @@ class RoleController implements IController {
         try 
         {
             const { role } = req?.body
-            console.log(req?.body)
+            
             if(!mongoose.isValidObjectId(role) || !role) 
             {    
                const data: { message: string, data: object, statusCode: number } = 

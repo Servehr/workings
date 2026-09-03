@@ -4,6 +4,10 @@ import HttpException from "@/exception/http.exception"
 import AuthService from "@/service/auth.service"
 import { IsAuthenticated } from "@/middleware/isAuthenticated"
 import { createToken } from "@/helper/token"
+import { ValidateNewUser } from "@/validations/auth/ValidateNewUser"
+import { CreateUserDto } from "@/validations/auth/dto/create-user.dto"
+import { errorProps } from "@/utils/response-format"
+
 
 
 class AuthController implements IController {
@@ -24,7 +28,7 @@ class AuthController implements IController {
             this.testing
         )
         this.router.post(`${this.path}/register`,
-            // validateMiddleware(validate.register),
+            ValidateNewUser(CreateUserDto),
             this.register
         )
         this.router.post(`${this.path}/login`,
@@ -72,41 +76,21 @@ class AuthController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            const { firstname, surname, phone, email, password, cPassword, category } = req?.body
-            if(password !== cPassword)
-            {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Invalid username or password',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
-            } else {
-                let userType: string = category?.toLowerCase()
-                await this.authService.register(
-                    firstname, surname, phone, email, password, userType
-                )
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Registration successful, activation mail has been sent to you',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
-            }
-        } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
+            const { 
+                    firstname, surname, phone, email, password, cPassword, category 
+            } = req?.body
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let userType: string = category?.toLowerCase()
+            await this.authService.register(
+               firstname, surname, phone, email, password, userType
+            )
+            return res.sendSuccess({}, 'Registration successful, activation mail has been sent to you');
+
+        } catch (error: any) {
+
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -117,7 +101,6 @@ class AuthController implements IController {
     ): Promise<any> => {
         try {
             const { email, password } = req.body
-            console.log(req.body)
             const newUser = await this.authService.login(email, password)
 
             let token = createToken(newUser)

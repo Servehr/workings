@@ -49,11 +49,8 @@ class DivisionController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        console.log("c")
         const page = req.query.page
         const limit = req.query.limit
-
-        console.log("Checking what happened")
 
         const divisions = await this.divisionService.divisions(Number(page), Number(limit));
         const data: { message: string, data: object, statusCode: number } = 
@@ -69,7 +66,7 @@ class DivisionController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        console.log("a")
+        
         const page = req.query.page
         const limit = req.query.limit
         const cateory = req.query.category as string
@@ -91,9 +88,7 @@ class DivisionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            console.log("b")
             const { category, name, description } = req?.body
-            console.log(req?.body)
             if(!name || !description)
             {                
                 const data: { message: string, data: object, statusCode: number } = 
@@ -135,7 +130,6 @@ class DivisionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            console.log("d")
             const { division, name, description } = req?.body
             if(!mongoose.isValidObjectId(division)) 
             {    
@@ -189,7 +183,6 @@ class DivisionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            console.log("e")
             const { division } = req?.body
             if(!mongoose.isValidObjectId(division) || !division) 
             {    
@@ -232,7 +225,6 @@ class DivisionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            console.log("f")
             const { category } = req?.body
             if(!mongoose.isValidObjectId(category) || !category) 
             {    
@@ -275,7 +267,6 @@ class DivisionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            console.log("g")
             const { category, division } = req?.body
             if(!mongoose.isValidObjectId(category) || !mongoose.isValidObjectId(division)) 
             {    

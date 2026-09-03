@@ -79,7 +79,6 @@ class CategoryController implements IController {
                 res.status(404).json(data)
             }
             const NewlyCreated = await this.categoryService.create(name, description)
-            console.log(NewlyCreated)
             const data: { message: string, data: object, statusCode: number } = 
             {
                message: `${NewlyCreated} created`,
@@ -111,7 +110,6 @@ class CategoryController implements IController {
         try 
         {
             const { category, name, description } = req?.body
-            console.log(req.body)
             if(!mongoose.isValidObjectId(category)) 
             {    
                const data: { message: string, data: object, statusCode: number } = 
@@ -154,7 +152,6 @@ class CategoryController implements IController {
         try 
         {
             const { category } = req?.body
-            console.log(req.body)
             if(!mongoose.isValidObjectId(category) || !category) 
             {    
                const data: { message: string, data: object, statusCode: number } = 

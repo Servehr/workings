@@ -30,7 +30,7 @@ export const paginate = async <T extends Document>(model: Model<T>, filter: Filt
   let data: any
 
   // if (model.schema.path('account')) 
-  console.log(populate)
+  // console.log(populate)
   if(populate)
   {
     data = await model.find(filter, projection)

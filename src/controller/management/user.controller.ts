@@ -3,7 +3,6 @@ import IController from "@/interfaceIController"
 import UserService from "@/service/user.service";
 import mongoose from "mongoose";
 
-
 class UserController implements IController {
 
     public path = '/user';
@@ -20,7 +19,6 @@ class UserController implements IController {
         this.router.get(`${this.path}`, this.users)
 
         this.router.post(`${this.path}/create`,
-            // validateMiddleware(validate.register),
             this.create
         )
         this.router.put(`${this.path}/update`,
@@ -503,7 +501,7 @@ class UserController implements IController {
         try
         {
           const { firstname, surname, phone, email, message } = req?.body
-          console.log(req?.body)
+          
           const formResponse = await this.userService.fastResponse(firstname, surname, phone, email, message)
           let RESPONSE: { message: string, statusCode: number, data: any } = 
            {
