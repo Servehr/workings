@@ -12,3 +12,11 @@ export function errorProps(error: any)
   const data = error.data
   return { errMsg, code, data }
 }
+
+
+export function errorResponse(res: any, error: any)
+{
+  let err = JSON.parse(error?.message)
+  const { errMsg, code, data } = errorProps(err)
+  res.sendError(errMsg, code, data) 
+}

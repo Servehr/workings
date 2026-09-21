@@ -1,6 +1,7 @@
 import Page from "@/model/management/page";
 import Rexource from "@/model/management/rexource";
-import { paginate } from "@/utils/pagination";
+import { paginate, PaginationOptions } from "@/utils/pagenation";
+// import { paginate } from "@/utils/pagination";
 import mongoose from "mongoose";
 
 
@@ -9,18 +10,39 @@ class PageService {
     
     public async pages(page: number, limit: number): Promise<Error | String | any>
     {
-      const children = {      
-         path: 'aktions',
-         match: { deletedAt: null },
-         select: '_id name description'
-      }  
-      const parent = {      
-         path: 'aktions',
-         match: { deletedAt: null },
-         select: '_id name description'
-      }      
-      return await paginate(Page, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', children)    
+      // const children = {      
+      //    path: 'aktions',
+      //    match: { deletedAt: null },
+      //    select: '_id name description'
+      // }  
+      // const parent = {      
+      //    path: 'aktions',
+      //    match: { deletedAt: null },
+      //    select: '_id name description'
+      // }      
+      // return await paginate(Page, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name rexource description', children)    
+
+      const options: PaginationOptions = 
+      {
+         currentPage: page || 1,
+         limit: limit || 10,
+         sort: { _id: -1 },
+         // Define multiple and nested populate configurations cleanly
+         populate: [
+            { path: 'aktions', select: '_id name description' }, 
+            { path: 'rexource', select: '_id name rexource description'}
+         ]
+      };
+
+      // Execute the paginated query
+      return await paginate<any>(Page, { deletedAt: null }, options);  
     }
+
+    public async pageActions(page: string): Promise<Error | String | any>
+    {
+       console.log("!!!!!!!!!!!!!!!!!!!!!!")
+       return await Page.findOne({ _id: page }).populate([ {  path: 'aktions' }])
+    }    
 
     public async create(name: string, description: string): Promise<Error | string | any>
     {
@@ -131,6 +153,8 @@ class PageService {
 
     public async connectPageToRexource(rexource: string, pages: string[]): Promise<Error | string | any>
     {
+       console.log("Bread")
+       console.log(pages)
        let InvalidPage: string[] = []
        let ValidPage: string[] = []
        let Pages = await Page.find({}, '_id')
@@ -192,7 +216,7 @@ class PageService {
             const pName = await Page.findOne({ _id: Invalid[index] })
             InvalidPageName.push(pName?.name)
          }
-
+         console.log(Valid)
          if(Valid?.length === 0)
          {
             let RESPONSE: { message: string, statusCode: number, data: any } = 
@@ -215,18 +239,34 @@ class PageService {
          }
 
          let TheValidPagesName = ValidPagesName?.join(", ")
-
+         console.log("Check am well")
+         console.log(Valid)
          await Rexource.findByIdAndUpdate(rexource, 
             { $push: { pages: Valid } }, 
             { new: true }
          )
+
+         for (let index = 0; index < Valid.length; index++) 
+         {
+            console.log(Valid[index])
+            await Page.updateOne({ _id: Valid[index] }, { $set: { rexource: rexource } }) 
+         }
+
+         
          console.log("4")
 
-         let message = `${TheValidPagesName} attached to ${''}`
+         // console.log(rexource)
+         const RexourceName = await Rexource.findById(rexource)
+         // console.log(RexourceName)
+         const rName: string = RexourceName?.name
+         // console.log(rName)
+         // console.log("#############")
+         let message = `${TheValidPagesName} attached to ${rName}`
          if(Invalid?.length > 0)
          {
             message += `AND ${InvalidPageName.join(", ")} already connected or invalid`
          }
+         console.log("+++++++yyy++++++")
          return message
        } else {
            console.log("5")
@@ -240,13 +280,22 @@ class PageService {
              { $push: { pages: ValidPage } }, 
              { new: true }
            )
-           let message = `${ConnectPageName} attached to ${''}`
-           return message
+
+           await Page.updateOne({ _id: pages[0] }, { $set: { rexource: rexource } }) 
+           
+          const RexourceName = await Rexource.findById(rexource)
+          const rName: string = RexourceName?.name
+          console.log("++++vvvvvvvvvvv+++++")
+          let message = `${ConnectPageName} attached to ${rName}`
+          return message
        }      
     }
 
     public async disconnectPageFromRexource(rexource: string, pages: string[]): Promise<Error | string | any>
     {
+       console.log("Coming Dayz")
+       console.log(pages)
+       console.log(rexource)
        let InvalidPage: string[] = []
        let ValidPage: string[] = []
        let Pages = await Page.find({}, '_id')
@@ -339,7 +388,11 @@ class PageService {
          { new: true }
        )
 
-       let message = `${TheValidPagesName} detached from ${''}`
+       await Page.updateOne({ _id: pages[0] }, { $set: { rexource: null } }) 
+         
+       const RexourceName = await Rexource.findById(rexource)
+       const rName: string = RexourceName?.name
+       let message = `${TheValidPagesName} detached from ${rName}`
        if(Invalid?.length > 0)
        {
           message += `AND ${InvalidPageName.join(", ")} already disconnected or invalid`

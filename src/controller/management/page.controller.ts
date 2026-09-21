@@ -27,6 +27,12 @@ class PageController implements IController {
             // validateMiddleware(validate.register),
             this.create
         )
+
+        this.router.get(`${this.path}/actions`,
+            // validateMiddleware(validate.register),
+            this.pageAction
+        )
+
         this.router.put(`${this.path}/update`,
             // validateMiddleware(validate.register),
             this.update
@@ -47,7 +53,7 @@ class PageController implements IController {
             // validateMiddleware(validate.register),
             this.connectToResource
         )
-        this.router.put(`${this.path}/disconnect-from-resource`,
+        this.router.put(`${this.path}/disconnect-page-from-resource`,
             // validateMiddleware(validate.register),
             this.disconnectFromResource
         )
@@ -61,15 +67,23 @@ class PageController implements IController {
         
         const page = req.query.page
         const limit = req.query.limit
-        const pages = await this.pageService.pages(Number(page), Number(limit));
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All Pages',
-          data: pages,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        const pages = await this.pageService.pages(Number(page), Number(limit));        
+        return res.sendSuccess(pages, `Created`);
     }
+
+    private pageAction = async (req: Request,
+        res: Response
+    ) : Promise<Response | void> => {
+
+        console.log("#####################")
+        const page = req.query.page as string
+        console.log(page)
+        const actions = await this.pageService.pageActions(page);
+        console.log("+++++++++++++++++++++")
+        console.log(actions)
+        console.log("+++++++++++++++++++++")
+        return res.sendSuccess(actions, `All page Actions`);
+    }    
 
     private create = async (
         req: Request,
@@ -300,6 +314,9 @@ class PageController implements IController {
         try 
         {
             const { rexource, pages } = req?.body
+            console.log("#####################")
+            console.log(rexource, pages)
+            console.log("#####################")
             if(!mongoose.isValidObjectId(rexource) || !rexource) 
             {    
                const data: { message: string, data: object, statusCode: number } = 
@@ -325,7 +342,7 @@ class PageController implements IController {
             const repage = await this.pageService.connectPageToRexource(rexource, pages)
             const data: { message: string, data: object, statusCode: number } = 
              {
-                message: `${repage} >`,
+                message: `${repage}`,
                 data: { },
                 statusCode: 200
              }
@@ -354,6 +371,9 @@ class PageController implements IController {
         try 
         {
             const { rexource, pages } = req?.body
+            console.log("*******************")
+            console.log(rexource, pages)
+            console.log("*******************")
             if(!mongoose.isValidObjectId(rexource) || !rexource) 
             {    
                const data: { message: string, data: object, statusCode: number } = 

@@ -1,5 +1,6 @@
 import Rexource from "@/model/management/rexource";
 import { paginate } from "@/utils/pagination";
+import { responseFormat } from "@/utils/response-format";
 
 
 
@@ -93,6 +94,16 @@ class RexourceService {
         }
         await Rexource.deleteOne({ _id: rexource })
         return DeleteRexource?.name
+    }
+
+    public async resourceRole(resource: string)
+    {
+      const resourceExist = await Rexource.findOne({ _id: resource })
+      if(!resourceExist)
+      {
+        responseFormat('Invalid request passed', 400, null)       
+      } 
+      return resourceExist?.roles 
     }
     
 

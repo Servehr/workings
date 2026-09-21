@@ -1,4 +1,4 @@
-import role from "@/model/role";
+import Role from "@/model/management/role";
 
 
 class RoleService {
@@ -6,7 +6,7 @@ class RoleService {
     
     public async categories(): Promise<Error | String | any>
     {
-      return await role.find({})
+      return await Role.find({})
     }
     
 

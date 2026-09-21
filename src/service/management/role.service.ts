@@ -1,8 +1,10 @@
-import Role from "@/model/role";
+import Role from "@/model/management/role";
 import Privilege from "@/model/privilege";
 import Department from "@/model/department";
+import Rexource from "@/model/management/rexource";
 import mongoose from "mongoose";
 import { paginate } from "@/utils/pagination";
+import { responseFormat } from "@/utils/response-format";
 
 
 
@@ -93,7 +95,7 @@ class RoleService {
         return DeleteRole?.name
     }
 
-    public async DepartmentRoleAssignment(department: string, role: string)
+    public async departmentRoleAssignment(department: string, role: string)
     {
        const dept = await Department.findById(department)
        if(!dept)
@@ -179,6 +181,75 @@ class RoleService {
       //  const msg: string = `${dept.name} assigned to ${rhole.name}`
       //  return msg
     }    
+
+    public async roleResourceLink(role: string, resource: string)
+    {
+      const roleExist = await Role.findOne({ _id: role })
+      if(!roleExist)
+      {
+        responseFormat('Invalid request passed', 400, null)       
+      }  
+      const resourceExist = await Rexource.findOne({ _id: resource })
+      if(!resourceExist)
+      {
+        responseFormat('Invalid request passed', 400, null)       
+      }  
+      const existingResources = roleExist?.rexources
+      if(roleExist?.rexources?.length > 0)
+      {
+        if(existingResources?.includes(resource))
+        {
+          responseFormat(`${roleExist?.name} already has ${resourceExist?.name}`, 400, null) 
+        }
+      }
+      await Role.findByIdAndUpdate(role, 
+        { $push: { rexources: resource } }, 
+        { new: true }
+      )
+      return `${resourceExist?.name} linked to ${roleExist?.name}`
+    }
+
+    public async roleResourceUnlink(role: string, resource: string)
+    {
+      const roleExist = await Role.findOne({ _id: role })
+      if(!roleExist)
+      {
+        responseFormat('Invalid request passed', 400, null)       
+      }  
+      const resourceExist = await Rexource.findOne({ _id: resource })
+      if(!resourceExist)
+      {
+        responseFormat('Invalid request passed', 400, null)       
+      }  
+      const existingResources = roleExist?.rexources
+      if(roleExist?.rexources?.length === 0)
+      {
+         responseFormat(`${roleExist?.name} currently does not have any resource link to it`, 400, null)
+      }
+      if(roleExist?.rexources?.length > 0)
+      {
+        if(!existingResources?.includes(resource))
+        {
+           responseFormat(`${resourceExist?.name} is not associated with ${roleExist?.name}`, 400, null) 
+        } else {
+           await Role.findByIdAndUpdate(role, 
+             { $pull: { rexources: resource } }, 
+             { new: true }
+           )
+           return `${resourceExist?.name} unlinked from ${roleExist?.name}`
+        }
+      }
+    }
+
+    public async roleResources(role: string)
+    {
+      const roleExist = await Role.findOne({ _id: role })
+      if(!roleExist)
+      {
+        responseFormat('Invalid request passed', 400, null)       
+      }  
+      return roleExist?.rexources 
+    }
     
 
 }

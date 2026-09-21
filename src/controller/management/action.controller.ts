@@ -45,15 +45,14 @@ class ActionController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        const categories = await this.actionService.actions();
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All Action',
-          data: categories,
-          statusCode: 200
-        }
-        res.status(200).json(data)
-    }
+        
+        const page = req.query.page
+        const limit = req.query.limit
+
+        const actions = await this.actionService.actions(Number(page), Number(limit))
+        console.log(actions)
+        return res.sendSuccess(actions, `Created`)
+    } 
 
     private create = async (
         req: Request,
@@ -167,7 +166,7 @@ class ActionController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            const { action } = req?.body
+            const { page, action } = req?.body
             if(!mongoose.isValidObjectId(action)) 
             {    
                const data: { message: string, data: object, statusCode: number } = 
@@ -178,7 +177,7 @@ class ActionController implements IController {
                }
                res.status(404).json(data)
             } else {
-                const deetedAt = await this.actionService.remove(action)
+                const deetedAt = await this.actionService.remove(page, action)
                 const data: { message: string, data: object, statusCode: number } = 
                 {
                     message: `${deetedAt} deleted`,

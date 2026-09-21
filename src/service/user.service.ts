@@ -1,4 +1,4 @@
-import Role from "@/model/role";
+import Role from "@/model/management/role";
 import Privilege from "@/model/privilege";
 import Department from "@/model/department";
 import mongoose from "mongoose";
