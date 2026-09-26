@@ -1,9 +1,8 @@
 import Role from "@/model/management/role";
-import Privilege from "@/model/privilege";
 import Department from "@/model/department";
 import Rexource from "@/model/management/rexource";
 import mongoose from "mongoose";
-import { paginate } from "@/utils/pagination";
+import { paginate, PaginationOptions } from "@/utils/pagenation";
 import { responseFormat } from "@/utils/response-format";
 
 
@@ -14,7 +13,17 @@ class RoleService {
     
     public async roles(page: number, limit: number): Promise<Error | String | any>
     {
-      return await paginate(Role, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', null)    
+      // return await paginate(Role, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', null)    
+      const options: PaginationOptions = 
+      {
+         currentPage: page || 1,
+         limit: limit || 10,
+         sort: { _id: -1 },
+         populate: [
+            { path: 'rexources', select: '_id name description' }
+         ]
+      }
+      return await paginate<any>(Role, { deletedAt: null }, options);  
     }
 
 
@@ -187,19 +196,19 @@ class RoleService {
       const roleExist = await Role.findOne({ _id: role })
       if(!roleExist)
       {
-        responseFormat('Invalid request passed', 400, null)       
+        responseFormat('Invalid request passed 1', 400, null)       
       }  
       const resourceExist = await Rexource.findOne({ _id: resource })
       if(!resourceExist)
       {
-        responseFormat('Invalid request passed', 400, null)       
+        responseFormat('Invalid request passed 2', 400, null)       
       }  
       const existingResources = roleExist?.rexources
       if(roleExist?.rexources?.length > 0)
       {
         if(existingResources?.includes(resource))
         {
-          responseFormat(`${roleExist?.name} already has ${resourceExist?.name}`, 400, null) 
+          responseFormat(`${roleExist?.name} already has ${resourceExist?.name} 3`, 400, null) 
         }
       }
       await Role.findByIdAndUpdate(role, 
@@ -247,8 +256,9 @@ class RoleService {
       if(!roleExist)
       {
         responseFormat('Invalid request passed', 400, null)       
-      }  
-      return roleExist?.rexources 
+      }
+      const roleResources = await Role.findOne({ _id: role }).populate('rexources', '_id name')
+      return roleResources?.rexources
     }
     
 

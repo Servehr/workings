@@ -1,5 +1,9 @@
-import Aktion from "@/model/management/aktion";
+import Role from "@/model/management/role";
+import Rexource from "@/model/management/rexource";
 import Page from "@/model/management/page"
+import Aktion from "@/model/management/aktion";
+import Permission from "@/model/management/permission";
+import Privilege from "@/model/privilege";
 import { paginate, PaginationOptions } from "@/utils/pagenation";
 import { responseFormat } from "@/utils/response-format";
 
@@ -107,6 +111,225 @@ class ActionService {
         { new: true }
        )
        return DeleteAction?.name
+    } 
+
+    public async permission(role: string, rexource: string, page: string, action: any, status: boolean): Promise<Error | string | any>
+    {
+      const roleExist = await Role.findOne({ _id: role })
+      if(!roleExist)
+      {
+        responseFormat('Invalid request passed', 400, null)
+      }
+      const rexourceExist = await Rexource.findOne({ _id: rexource })
+      if(!rexourceExist)
+      {
+        responseFormat('Invalid request passed', 400, null)  
+      }
+      const pageExist = await Page.findOne({ _id: page })
+      if(!pageExist)
+      {
+        responseFormat('Invalid request passed', 400, null)  
+      }
+
+      let invalidAction = []
+      for (let index = 0; index < action.length; index++) 
+      {
+        let doesActionExist = Aktion.findById(action[index])
+        if(!doesActionExist)
+        {
+          invalidAction.push(action[index])
+        }        
+      }
+
+      if(invalidAction?.length > 0)
+      {
+        const response = { msg: 'invalid parameter passed', data: invalidAction }
+        responseFormat(response, 404, null)
+      }
+
+      if(Array.isArray(action))
+      {       
+        if(action?.length === 0)
+        {
+          responseFormat('Pass at least an action', 400, null)
+        }
+        if(status)
+        {
+          let actionIdsToAdd : string[] = []
+          
+          const doesExist = await Permission.findOne({ role: role })
+          if(doesExist && doesExist?.priviledge?.length > 0)
+          {
+            const pG = doesExist?.priviledge
+            let actionPosition: any
+
+            for (let dick = 0; dick < pG.length; dick++) 
+            {
+              if(pG[dick]?.page?.toString() === page)
+              { 
+                actionPosition = dick
+              }              
+            }       
+
+            let actionAlreadyAdded = doesExist?.priviledge[actionPosition]?.aktions
+
+            for(let index = 0; index < action?.length; index++) 
+            {
+              if(!doesExist?.priviledge[actionPosition]?.aktions?.includes(action[index]))
+              {
+                actionIdsToAdd.push(action[index])
+              }               
+            }
+            if(actionIdsToAdd?.length > 0)
+            { 
+              let mergedAddition = [...actionIdsToAdd, ...actionAlreadyAdded]
+              const toUpdate = `priviledge.${actionPosition}.aktions`
+              await Permission.findOneAndUpdate({ role: role }, { $set: { [toUpdate]: mergedAddition } } )
+            }
+          }            
+          if(doesExist && doesExist?.priviledge?.length === 0)
+          {
+            const addPriviledge = { page: page, aktions: actionIdsToAdd }
+            await Permission.findOneAndUpdate({ role: role }, { $push: { priviledge: addPriviledge } } )
+          } 
+          if(!doesExist)
+          {
+            await Permission.create({ role, rexource })            
+            const addPriviledge = { page: page, aktions: action }
+            await Permission.findOneAndUpdate({ role: role }, { $push: { priviledge: addPriviledge } } )
+          }                    
+
+        } else {
+           
+           let actionToRemove: string[] = []
+           let actionAlreadyAdded: string[] = []
+           
+           const doesExist = await Permission.findOne({ role: role })
+           if(!doesExist || (doesExist && doesExist?.priviledge?.length === 0))
+           {
+              const response = { msg: 'No assigned action, nothing to remove', data: '' }
+              responseFormat(response, 400, null)
+           }
+
+           if(doesExist && doesExist?.priviledge?.length > 0)
+           {
+             const pG = doesExist?.priviledge
+             let actionPosition: any
+
+             for (let dick = 0; dick < pG.length; dick++) 
+             {
+               if(pG[dick]?.page?.toString() === page)
+               { 
+                 actionPosition = dick
+               }              
+             }     
+            
+             let actionAlreadyAdded = doesExist?.priviledge[actionPosition]?.aktions
+
+             for(let index = 0; index < action?.length; index++) 
+             {
+               if(doesExist?.priviledge[actionPosition]?.aktions?.includes(action[index]))
+               {
+                 actionToRemove.push(action[index])
+               }
+             }
+             
+             if(actionToRemove?.length > 0)
+             {
+               const restoreActions = actionAlreadyAdded.filter((item: string) => !actionToRemove.includes(item?.toString()))                           
+               const toUpdate = `priviledge.${actionPosition}.aktions`
+               await Permission.findOneAndUpdate({ role: role }, { $set: { [toUpdate]: restoreActions } } )
+             }
+           }
+        }
+        
+      } else {
+
+        if(status)
+        {
+          let actionIdsToAdd = []  
+          let actionAlreadyAddedToPage: string[] = []   
+          let actionPosition: number = -1     
+
+          const doesExist = await Permission.findOne({ role: role })  
+
+          const pG = doesExist?.priviledge
+          if(doesExist?.priviledge?.length > 0)
+          {
+            for (let dick = 0; dick < pG.length; dick++) 
+            {
+              if(pG[dick]?.page?.toString() === page)
+              { 
+                actionPosition = dick
+                actionAlreadyAddedToPage = pG[dick]?.aktions
+              }              
+            }
+            if(!doesExist?.priviledge[actionPosition]?.aktions?.includes(action))
+            {
+               actionIdsToAdd.push(action)
+            }
+            if(actionIdsToAdd)
+            {
+              let mergedAddition = [...actionIdsToAdd, ...actionAlreadyAddedToPage]
+              const toUpdate = `priviledge.${actionPosition}.aktions`
+              await Permission.findOneAndUpdate({ role: role }, { $set: { [toUpdate]: mergedAddition } } )
+            }          
+          } 
+
+          if(doesExist && doesExist?.priviledge?.length === 0)
+          {
+            const theAction = { page: page, aktions: [action] }
+            await Permission.findOneAndUpdate({ role: role }, { $push: { priviledge: theAction } } ) 
+          }    
+
+          if(!doesExist)
+          { 
+            await Permission.create({ role, rexource })
+            const theAction = { page: page, aktions: [action] }
+            await Permission.findOneAndUpdate({ role: role }, { $push: { priviledge: theAction } } )
+          }       
+
+        } else {
+          
+          const doesExist = await Permission.findOne({ role: role }) 
+          let actionPosition: number = -1   
+          let actionAlreadyAddedToPage: string[] = []  
+          let actionToRemove: string = ""
+          
+          if(!doesExist || (doesExist && doesExist?.priviledge?.length === 0))
+          {
+            const response = { msg: 'No assigned action, nothing to remove', data: '' }
+            responseFormat(response, 400, null)
+          }
+
+          const pG = doesExist?.priviledge
+          
+          if(doesExist?.priviledge?.length > 0)
+          {
+            for(let dick = 0; dick < pG.length; dick++) 
+            {
+              if(pG[dick]?.page?.toString() === page)
+              { 
+                actionPosition = dick
+                actionAlreadyAddedToPage = pG[dick]?.aktions
+              }              
+            }
+            if(doesExist?.priviledge[actionPosition]?.aktions?.includes(action))
+            {
+               actionToRemove = action
+            }
+            if(actionToRemove)
+            {
+              const restoreActions = actionAlreadyAddedToPage.filter((item: string) => item?.toString() !== actionToRemove?.toString());                         
+              const toUpdate = `priviledge.${actionPosition}.aktions`
+              await Permission.findOneAndUpdate({ role: role }, { $set: { [toUpdate]: restoreActions } } )
+            }          
+          }           
+
+        }
+      }
+       
+      return 'Action Successful'
     } 
     
 

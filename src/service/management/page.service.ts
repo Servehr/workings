@@ -1,4 +1,5 @@
 import Page from "@/model/management/page";
+import Authority from "@/model/management/authority";
 import Rexource from "@/model/management/rexource";
 import { paginate, PaginationOptions } from "@/utils/pagenation";
 // import { paginate } from "@/utils/pagination";
@@ -285,6 +286,8 @@ class PageService {
            
           const RexourceName = await Rexource.findById(rexource)
           const rName: string = RexourceName?.name
+
+         //  await Authority.create({ '', '', '' })
           console.log("++++vvvvvvvvvvv+++++")
           let message = `${ConnectPageName} attached to ${rName}`
           return message

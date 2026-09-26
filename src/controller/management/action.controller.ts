@@ -39,6 +39,10 @@ class ActionController implements IController {
             // validateMiddleware(validate.register),
             this.delete
         )
+        this.router.put(`${this.path}/permission`,
+            // validateMiddleware(validate.register),
+            this.permission
+        )
     }
 
     private actions = async (req: Request,
@@ -272,7 +276,23 @@ class ActionController implements IController {
             }
         } catch (error: any) {
         }
-    }     
+    } 
+
+    private permission = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try 
+        {
+            const { role, rexource, page, action, status } = req?.body
+            const aktions = await this.actionService.permission(role, rexource, page, action, status)
+            res.sendSuccess(aktions, '')
+        } catch (error: any) {
+        }
+    } 
+    
+    
 
 
 }

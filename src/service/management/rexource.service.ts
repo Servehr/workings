@@ -1,8 +1,7 @@
 import Rexource from "@/model/management/rexource";
 import { paginate } from "@/utils/pagination";
 import { responseFormat } from "@/utils/response-format";
-
-
+import Permission from "@/model/management/permission";
 
 
 class RexourceService {
@@ -10,12 +9,78 @@ class RexourceService {
     
     public async rexources(page: number, limit: number): Promise<Error | String | any>
     {
-      const children = {      
+
+      const children = 
+      {      
          path: 'pages',
          match: { deletedAt: null },
          select: '_id name description'
       }      
       return await paginate(Rexource, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', children)    
+    }
+
+    public async rexourcesPageAktions(role: string, resource: string)
+    {
+       const rexource = await Rexource.find({ _id: resource }, '_id name')
+         .populate(
+           {
+             path: 'pages',
+             select: '_id name',
+             populate: {
+               path: 'aktions',
+               model: 'Aktion',
+               select: '_id name'
+             }
+           }   
+       ).lean()       
+       // Designated rexource page action
+       const rolePermisson = await Permission.findOne({ role: role }, 'priviledge')
+      //  console.log(rolePermisson)
+       // Application rexource page action
+       const permission = rexource[0]?.pages
+      //  console.log(permission)
+              
+       for(let index = 0; index < permission?.length; index++) 
+       {
+         let allSelected: number = 0
+         let actionLength = 0
+         // Application pageId
+         let pageId: string = permission[index]?._id
+         // console.log(pageId)
+         // Application actions
+         const pageAktions = permission[index]?.aktions     // actions
+         // console.log(pageAktions)
+         // deignated actions
+         const designateAktions = rolePermisson?.priviledge //  page, actions
+         // console.log(designateAktions)
+
+         for(let xedni = 0; xedni < designateAktions.length; xedni++)
+         {
+            // console.log(designateAktions[xedni])
+            // console.log(pageId)
+            // console.log(designateAktions[xedni]?.page)
+            // console.log("*************************************************")
+           if(pageId?.toString() === designateAktions[xedni]?.page?.toString())
+           {
+             const designatedPageAktion = designateAktions[xedni]?.aktions             
+             
+             for (let act = 0; act < pageAktions.length; act++) 
+             {
+               actionLength = act
+               if(designatedPageAktion?.includes(pageAktions[act]?._id))
+               {
+                  allSelected = allSelected + 1
+                  Object.assign(pageAktions[act], { status: true })
+               } else {
+                  Object.assign(pageAktions[act], { status: false })
+               }
+             }
+           }
+         }             
+         permission[index]['actionLength'] = actionLength+1    
+         permission[index]['all'] = allSelected 
+       }
+       return rexource
     }
 
 

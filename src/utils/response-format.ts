@@ -1,4 +1,4 @@
-export function responseFormat(msg: string, statusCode: number, data: any)
+export function responseFormat(msg: any, statusCode: number, data: any)
 {
   let RESPONSE: { msg: string, statusCode: number, data: any } = { msg, statusCode, data }
   throw new Error(JSON.stringify(RESPONSE));

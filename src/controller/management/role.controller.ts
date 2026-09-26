@@ -52,7 +52,7 @@ class RoleController implements IController {
             // validateMiddleware(validate.register),
             this.RoleResourceUnlink
         )
-        this.router.put(`${this.path}/resource-unlink`,
+        this.router.get(`${this.path}/resources`,
             // validateMiddleware(validate.register),
             this.RoleResources
         )
@@ -339,11 +339,11 @@ class RoleController implements IController {
         next: NextFunction
     ): Promise<Response | void> => {
         
-       try 
+      try 
       {
-         const { role, resource } = req.body
-         const roleResources = await this.roleService.roleResourceLink(role, resource)
-         return res.sendSuccess(roleResources, ``)                
+         const { role, rexource } = req.body
+         const roleResources = await this.roleService.roleResourceLink(role, rexource)
+         return res.sendSuccess(roleResources, roleResources)                
       } catch (error: any) {         
           errorResponse(res, error)             
       }
@@ -356,9 +356,9 @@ class RoleController implements IController {
     ): Promise<Response | void> => {        
       try 
       {
-         const { role, resource } = req.body
-         const roleResourcesLink = await this.roleService.roleResourceUnlink(role, resource)
-         return res.sendSuccess(roleResourcesLink, ``)                
+         const { role, rexource } = req.body
+         const roleResourcesLink = await this.roleService.roleResourceUnlink(role, rexource)
+         return res.sendSuccess(roleResourcesLink, roleResourcesLink)                
       } catch (error: any) {        
           errorResponse(res, error)           
       }
@@ -371,9 +371,9 @@ class RoleController implements IController {
     ): Promise<Response | void> => {        
       try 
       {
-         const { role } = req.body
+         const role = req.query.role as string
          const roleResources = await this.roleService.roleResources(role)
-         return res.sendSuccess(roleResources, ``)                
+         return res.sendSuccess(roleResources, '')                
       } catch (error: any) {        
           errorResponse(res, error)           
       }

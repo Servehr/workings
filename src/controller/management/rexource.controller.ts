@@ -45,6 +45,10 @@ class RexourceController implements IController {
             // validateMiddleware(validate.register),
             this.resourceRole
         )
+        this.router.get(`${this.path}/pages-actions`,
+            // validateMiddleware(validate.register),
+            this.pagesActions
+        )
     }
 
     private rexources = async (req: Request,
@@ -299,7 +303,25 @@ class RexourceController implements IController {
         } catch (error: any) {        
            errorResponse(res, error)           
         }
+    }   
+    
+    private pagesActions = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try 
+        {                    
+          const role = req.query.role as string
+          const resource = req.query.resource as string
+          const pagesActions = await this.rexourceService.rexourcesPageAktions(role, resource)
+          return res.sendSuccess(pagesActions, ``)                
+        } catch (error: any) {        
+           errorResponse(res, error)           
+        }
     }
+
+    
 
 
 }
