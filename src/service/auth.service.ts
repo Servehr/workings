@@ -105,12 +105,7 @@ class AuthService {
         return u
         
       } else {
-        let RESPONSE: { message: string, statusCode: number, data: any } = {
-           message: 'Invalid email or password',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+         responseFormat('Invalid email or password', 400, null)
       }      
     }
     

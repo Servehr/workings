@@ -1,4 +1,4 @@
-export function responseFormat(msg: string, statusCode: number, data: any)
+export function responseFormat(msg: any, statusCode: number, data: any)
 {
   let RESPONSE: { msg: string, statusCode: number, data: any } = { msg, statusCode, data }
   throw new Error(JSON.stringify(RESPONSE));
@@ -11,4 +11,12 @@ export function errorProps(error: any)
   const code = error.statusCode
   const data = error.data
   return { errMsg, code, data }
+}
+
+
+export function errorResponse(res: any, error: any)
+{
+  let err = JSON.parse(error?.message)
+  const { errMsg, code, data } = errorProps(err)
+  res.sendError(errMsg, code, data) 
 }

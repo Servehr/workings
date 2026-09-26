@@ -12,6 +12,7 @@ class AboutService {
                   { deletedAt: null },
                   { title: 1, aboutus: 1, images: 1 }
                )
+               .sort({ createdAt: 'desc' })
     }
 
     public async create(title: string, aboutus: string, images: string[]): Promise<Error | string | any>

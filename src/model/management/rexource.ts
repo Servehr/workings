@@ -5,7 +5,7 @@ const rexourceSchema = new Schema(
     { 
         name:           {  type : String, maxlength : 130, unique : true, required : [true, 'rexource name is required'] },
         description:    {  type : String, maxlength : 100, required : [true, 'provide description for rexource'] },
-        pages:          [{ type: mongoose.Schema.Types.ObjectId, ref: 'Page', default: null }],
+        pages:          [  { type: mongoose.Schema.Types.ObjectId, ref: 'Page', default: null }],
         deletedAt:      {  type : Date, default : null  },
     },
     { timestamps : true }

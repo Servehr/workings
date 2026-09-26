@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import RoleService from "@/service/management/role.service";
 import mongoose from "mongoose";
+import { errorResponse } from "@/utils/response-format";
 
 
 class RoleController implements IController {
@@ -42,6 +43,18 @@ class RoleController implements IController {
         this.router.post(`${this.path}/assign-department`,
             // validateMiddleware(validate.register),
             this.assignRoleToDeparement
+        )
+        this.router.put(`${this.path}/resource-link`,
+            // validateMiddleware(validate.register),
+            this.RoleResourceLink
+        )
+        this.router.put(`${this.path}/resource-unlink`,
+            // validateMiddleware(validate.register),
+            this.RoleResourceUnlink
+        )
+        this.router.get(`${this.path}/resources`,
+            // validateMiddleware(validate.register),
+            this.RoleResources
         )
     }
 
@@ -90,18 +103,19 @@ class RoleController implements IController {
                 }
                 res.status(200).json(data)
             }
-        } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
+        } catch (error: any) { 
+            errorResponse(res, error) 
+            // const err = JSON.parse(error.message)
+            // const errMsg = err.message 
+            // const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            // const data: { message: string, data: object, statusCode: number } = 
+            // {
+            //    message: errMsg,
+            //    data: { },
+            //    statusCode: code
+            // }
+            // res.status(code).json(data)
         }
     }
 
@@ -293,7 +307,7 @@ class RoleController implements IController {
             }
             res.status(404).json(data)
             } else {
-            const departmentRoles = await this.roleService.DepartmentRoleAssignment(department, role)
+            const departmentRoles = await this.roleService.departmentRoleAssignment(department, role)
             const data: { message: string, data: object, statusCode: number } = 
             {
                 message: departmentRoles!,
@@ -317,8 +331,53 @@ class RoleController implements IController {
             }
             res.status(code).json(data)   
         }
-    }     
-
+    }  
+    
+    private RoleResourceLink = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        
+      try 
+      {
+         const { role, rexource } = req.body
+         const roleResources = await this.roleService.roleResourceLink(role, rexource)
+         return res.sendSuccess(roleResources, roleResources)                
+      } catch (error: any) {         
+          errorResponse(res, error)             
+      }
+    }
+    
+    private RoleResourceUnlink = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {        
+      try 
+      {
+         const { role, rexource } = req.body
+         const roleResourcesLink = await this.roleService.roleResourceUnlink(role, rexource)
+         return res.sendSuccess(roleResourcesLink, roleResourcesLink)                
+      } catch (error: any) {        
+          errorResponse(res, error)           
+      }
+    }
+    
+    private RoleResources = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {        
+      try 
+      {
+         const role = req.query.role as string
+         const roleResources = await this.roleService.roleResources(role)
+         return res.sendSuccess(roleResources, '')                
+      } catch (error: any) {        
+          errorResponse(res, error)           
+      }
+    }
 
 }
 

@@ -1,11 +1,13 @@
-import { model, Schema }   from 'mongoose'
+import mongoose, { Schema, model }   from 'mongoose';
 
  
 const RoleSchema = new Schema(
     { 
-        name:           {   type : String, maxlength : 130, unique : true, required : [true, 'role name is required'] },
-        description:    {   type : String, maxlength : 100, required : [true, 'provide role description'] },
-        deletedAt:       {  type : Date, default : null  },
+        name:           {  type : String, maxlength : 130, unique : true, required : [true, 'role name is required'] },
+        description:    {  type : String, maxlength : 100, required : [true, 'provide role description'] },
+        rexources:      [  { type: mongoose.Schema.Types.ObjectId, ref: 'Rexource', default: null } ],
+        permission:     [  { type: mongoose.Schema.Types.ObjectId, ref: 'Permission', default: null } ],
+        deletedAt:      {  type : Date, default : null  },
     },
     { timestamps : true }
 );

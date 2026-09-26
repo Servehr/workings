@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import RexourceService from "@/service/management/rexource.service";
 import mongoose from "mongoose";
+import { errorResponse } from "@/utils/response-format";
 
 
 class RexourceController implements IController {
@@ -39,6 +40,14 @@ class RexourceController implements IController {
         this.router.put(`${this.path}/delete`,
             // validateMiddleware(validate.register),
             this.delete
+        )
+        this.router.put(`${this.path}/role-link`,
+            // validateMiddleware(validate.register),
+            this.resourceRole
+        )
+        this.router.get(`${this.path}/pages-actions`,
+            // validateMiddleware(validate.register),
+            this.pagesActions
         )
     }
 
@@ -279,7 +288,40 @@ class RexourceController implements IController {
             }
             res.status(code).json(data)
         }
-    }    
+    }   
+    
+    private resourceRole = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try 
+        {
+          const { resource } = req.body
+          const roleResources = await this.rexourceService.resourceRole(resource)
+          return res.sendSuccess(roleResources, ``)                
+        } catch (error: any) {        
+           errorResponse(res, error)           
+        }
+    }   
+    
+    private pagesActions = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try 
+        {                    
+          const role = req.query.role as string
+          const resource = req.query.resource as string
+          const pagesActions = await this.rexourceService.rexourcesPageAktions(role, resource)
+          return res.sendSuccess(pagesActions, ``)                
+        } catch (error: any) {        
+           errorResponse(res, error)           
+        }
+    }
+
+    
 
 
 }

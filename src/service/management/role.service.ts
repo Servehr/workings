@@ -1,8 +1,9 @@
-import Role from "@/model/role";
-import Privilege from "@/model/privilege";
+import Role from "@/model/management/role";
 import Department from "@/model/department";
+import Rexource from "@/model/management/rexource";
 import mongoose from "mongoose";
-import { paginate } from "@/utils/pagination";
+import { paginate, PaginationOptions } from "@/utils/pagenation";
+import { responseFormat } from "@/utils/response-format";
 
 
 
@@ -12,7 +13,17 @@ class RoleService {
     
     public async roles(page: number, limit: number): Promise<Error | String | any>
     {
-      return await paginate(Role, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', null)    
+      // return await paginate(Role, { deletedAt: null }, { page: page, limit: limit, sort: { _id: -1 } }, '_id name description', null)    
+      const options: PaginationOptions = 
+      {
+         currentPage: page || 1,
+         limit: limit || 10,
+         sort: { _id: -1 },
+         populate: [
+            { path: 'rexources', select: '_id name description' }
+         ]
+      }
+      return await paginate<any>(Role, { deletedAt: null }, options);  
     }
 
 
@@ -93,7 +104,7 @@ class RoleService {
         return DeleteRole?.name
     }
 
-    public async DepartmentRoleAssignment(department: string, role: string)
+    public async departmentRoleAssignment(department: string, role: string)
     {
        const dept = await Department.findById(department)
        if(!dept)
@@ -179,6 +190,76 @@ class RoleService {
       //  const msg: string = `${dept.name} assigned to ${rhole.name}`
       //  return msg
     }    
+
+    public async roleResourceLink(role: string, resource: string)
+    {
+      const roleExist = await Role.findOne({ _id: role })
+      if(!roleExist)
+      {
+        responseFormat('Invalid request passed 1', 400, null)       
+      }  
+      const resourceExist = await Rexource.findOne({ _id: resource })
+      if(!resourceExist)
+      {
+        responseFormat('Invalid request passed 2', 400, null)       
+      }  
+      const existingResources = roleExist?.rexources
+      if(roleExist?.rexources?.length > 0)
+      {
+        if(existingResources?.includes(resource))
+        {
+          responseFormat(`${roleExist?.name} already has ${resourceExist?.name} 3`, 400, null) 
+        }
+      }
+      await Role.findByIdAndUpdate(role, 
+        { $push: { rexources: resource } }, 
+        { new: true }
+      )
+      return `${resourceExist?.name} linked to ${roleExist?.name}`
+    }
+
+    public async roleResourceUnlink(role: string, resource: string)
+    {
+      const roleExist = await Role.findOne({ _id: role })
+      if(!roleExist)
+      {
+        responseFormat('Invalid request passed', 400, null)       
+      }  
+      const resourceExist = await Rexource.findOne({ _id: resource })
+      if(!resourceExist)
+      {
+        responseFormat('Invalid request passed', 400, null)       
+      }  
+      const existingResources = roleExist?.rexources
+      if(roleExist?.rexources?.length === 0)
+      {
+         responseFormat(`${roleExist?.name} currently does not have any resource link to it`, 400, null)
+      }
+      if(roleExist?.rexources?.length > 0)
+      {
+        if(!existingResources?.includes(resource))
+        {
+           responseFormat(`${resourceExist?.name} is not associated with ${roleExist?.name}`, 400, null) 
+        } else {
+           await Role.findByIdAndUpdate(role, 
+             { $pull: { rexources: resource } }, 
+             { new: true }
+           )
+           return `${resourceExist?.name} unlinked from ${roleExist?.name}`
+        }
+      }
+    }
+
+    public async roleResources(role: string)
+    {
+      const roleExist = await Role.findOne({ _id: role })
+      if(!roleExist)
+      {
+        responseFormat('Invalid request passed', 400, null)       
+      }
+      const roleResources = await Role.findOne({ _id: role }).populate('rexources', '_id name')
+      return roleResources?.rexources
+    }
     
 
 }
