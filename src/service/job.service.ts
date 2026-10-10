@@ -1,6 +1,7 @@
 import { random } from "@/helper/random";
 import Job from "@/model/job";
 import User from "@/model/user";
+import { responseFormat } from "@/utils/response-format";
 
 
 
@@ -55,12 +56,7 @@ class JobService {
       const JobToCancel = await Job.findOne({ _id: job })
       if(!JobToCancel)
       {
-         let RESPONSE: { message: string, statusCode: number, data: any } = {
-           message: 'Invalid request passed',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))         
+        responseFormat('Invalid request passed', 400, null)        
       }
       await Job.updateOne({ _id: job }, { $set: { status: status } })
       const JobCancelled = await User.findOne({ _id: JobToCancel?.user })
@@ -73,12 +69,7 @@ class JobService {
       const user = await User.findOne({ _id: job?.user })
       if(!user)
       {
-        let RESPONSE: { message: string, statusCode: number, data: any } = {
-          message: 'Invalid request passed a',
-          statusCode: 404,
-          data: null
-        }
-        throw new Error(JSON.stringify(RESPONSE))         
+        responseFormat('Invalid request passed', 400, null)       
       }
       job.tag = random.character(15)
       await Job.create(job)
@@ -91,12 +82,7 @@ class JobService {
       const JobToRemove = await Job.findOne({ _id: job })
       if(!JobToRemove)
       {
-        let RESPONSE: { message: string, statusCode: number, data: any } = {
-          message: 'Invalid request passed',
-          statusCode: 404,
-          data: null
-        }
-        throw new Error(JSON.stringify(RESPONSE))         
+        responseFormat('Invalid request passed', 400, null)       
       }
       return await Job.updateOne({ _id: job }, { $set: { deletedAt: Date.now() } })
     }
@@ -106,12 +92,7 @@ class JobService {
       const JobToRemove = await Job.findOne({ _id: job })
       if(!JobToRemove)
       {
-        let RESPONSE: { message: string, statusCode: number, data: any } = {
-          message: 'Invalid request passed',
-          statusCode: 404,
-          data: null
-        }
-        throw new Error(JSON.stringify(RESPONSE))         
+        responseFormat('Invalid request passed', 400, null)         
       }
       return await Job.updateOne({ _id: job }, { $set: { deletedAt: null } })
     }
@@ -121,13 +102,7 @@ class JobService {
       const DeleteJob = await Job.findOne({ _id: job })
       if(!DeleteJob)
       {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-           message: 'Invalid request passed',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+        responseFormat('Invalid request passed', 400, null)
       }
       return await Job.deleteOne({ _id: job })
     }

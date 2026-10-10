@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import mongoose from "mongoose";
 import CountryService from "@/service/management/location/country.service";
+import { errorProps, responseFormat } from "@/utils/response-format";
 
 
 class CountryController implements IController {
@@ -46,14 +47,12 @@ class CountryController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        const countries = await this.countryService.countries();
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All countries',
-          data: countries['data'],
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        
+        const page = req.query.page
+        const limit = req.query.limit
+
+        const countries = await this.countryService.countries(Number(page), Number(limit));
+        return res.sendSuccess(countries['data'], `All countries`)
     }
 
     private create = async (
@@ -66,35 +65,16 @@ class CountryController implements IController {
             const { name } = req?.body
             if(!name)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+               responseFormat('Attempt to all field', 400, null)
             } else {
                 const NewlyCreated = await this.countryService.create(name.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${NewlyCreated} created`);
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -108,46 +88,21 @@ class CountryController implements IController {
             const { country, name } = req?.body
             if(!mongoose.isValidObjectId(country)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             }
 
             if(!name)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+                responseFormat('Attempt to all field', 400, null)
             } else {
                 await this.countryService.update(country, name.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Country updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `Country updated`);
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -161,35 +116,16 @@ class CountryController implements IController {
             const { country } = req?.body
             if(!mongoose.isValidObjectId(country)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.countryService.remove(country)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} deleted`);
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -203,35 +139,16 @@ class CountryController implements IController {
             const { country } = req?.body
             if(!mongoose.isValidObjectId(country)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.countryService.restore(country)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} restored`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} restored`);
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -245,35 +162,16 @@ class CountryController implements IController {
             const { country } = req?.body
             if(!mongoose.isValidObjectId(country)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+              responseFormat('Invalid parameter passed', 400, null)
             } else {
-                const deetedAt = await this.countryService.delete(country)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} permanently deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                const deetedAt = await this.countryService.delete(country)                
+                return res.sendSuccess({}, `${deetedAt} permanently deleted`);
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }    
 

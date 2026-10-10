@@ -1,7 +1,6 @@
 import Role from "@/model/management/role";
 import Department from "@/model/department";
 import Rexource from "@/model/management/rexource";
-import mongoose from "mongoose";
 import { paginate, PaginationOptions } from "@/utils/pagenation";
 import { responseFormat } from "@/utils/response-format";
 
@@ -39,15 +38,10 @@ class RoleService {
        const roleToUpdate = await Role.findOne({ _id: role })
        if(!roleToUpdate)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = {
-            message: 'Invalid request passed',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))         
-        }
-        await Role.updateOne({ _id: role }, { $set: { name: name, description: description } }) 
-        return roleToUpdate?.name
+         responseFormat('Invalid request passed', 400, null)       
+       }
+       await Role.updateOne({ _id: role }, { $set: { name: name, description: description } }) 
+       return roleToUpdate?.name
     }
 
 
@@ -56,52 +50,34 @@ class RoleService {
        const RemoveRole = await Role.findOne({ _id: role })
        if(!RemoveRole)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-          {
-            message: 'Invalid request passed',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))
-        }
-        await Role.updateOne({ _id: role }, { $set: { deletedAt: new Date() } })
-        return RemoveRole?.name
+          responseFormat('Invalid request passed', 400, null) 
+       }
+       await Role.updateOne({ _id: role }, { $set: { deletedAt: new Date() } })
+       return RemoveRole?.name
     }
 
 
     public async restore(role: string): Promise<Error | string | any>
     {
-        const RestoreRole = await Role.findOne({ _id: role })
-        if(!RestoreRole)
-        {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
-        }
-        await Role.updateOne({ _id: role }, { $set: { deletedAt: null } })
-        return RestoreRole?.name
+       const RestoreRole = await Role.findOne({ _id: role })
+       if(!RestoreRole)
+       {
+         responseFormat('Invalid request passed', 400, null) 
+       }
+       await Role.updateOne({ _id: role }, { $set: { deletedAt: null } })
+       return RestoreRole?.name
     }
 
 
     public async delete(role: string): Promise<Error | string | any>
     {
-        const DeleteRole = await Role.findOne({ _id: role })
-        if(!DeleteRole)
-        {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
-        }
-        await Role.deleteOne({ _id: role })
-        return DeleteRole?.name
+       const DeleteRole = await Role.findOne({ _id: role })
+       if(!DeleteRole)
+       {
+         responseFormat('Invalid request passed', 400, null) 
+       }
+       await Role.deleteOne({ _id: role })
+       return DeleteRole?.name
     }
 
     public async departmentRoleAssignment(department: string, role: string)
@@ -109,25 +85,13 @@ class RoleService {
        const dept = await Department.findById(department)
        if(!dept)
        {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-           message: 'Invalid request passed',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+         responseFormat('Invalid request passed', 400, null) 
        }
 
        const rhole = await Role.findById(role)
        if(!rhole)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-          {
-            message: 'Invalid request passed',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))
+         responseFormat('Invalid request passed', 400, null) 
        }
 
        const DepartmentRoles = dept?.roles

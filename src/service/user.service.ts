@@ -1,15 +1,11 @@
-import Role from "@/model/management/role";
-import Privilege from "@/model/privilege";
+
 import Department from "@/model/department";
-import mongoose from "mongoose";
 import User from "@/model/user";
 import UserType from "@/model/userType.model"
-import IUsers from "@/interfaceIUsers";
-import IUser from "@/interfaceIUser";
 import Newsletter from "@/model/newsletter";
-import { hasSubscribers } from "diagnostics_channel";
 import { paginate } from "@/utils/pagination";
 import fastForm from "@/model/management/fast-response"
+import { responseFormat } from "@/utils/response-format";
 
 
 
@@ -51,12 +47,7 @@ class UserService {
        const UserToUpdate = await User.findOne({ _id: user?.user })
        if(!UserToUpdate)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = {
-            message: 'Invalid request passed',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))         
+          responseFormat('Invalid request passed', 400, null)       
         }
         await User.updateOne({ _id: user?.user }, { $set: { firstname: user.firstname, lastname: user?.lastname } })
         const fullname: string = `${user?.firstname} - ${user?.lastname}` 
@@ -69,17 +60,11 @@ class UserService {
        const RemoveUser = await User.findOne({ _id: user })
        if(!RemoveUser)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-          {
-            message: 'Invalid request passed',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))
-        }
-        await User.updateOne({ _id: user }, { $set: { deletedAt: new Date() } })
-        const fullname: string = `${RemoveUser?.firstname} - ${RemoveUser?.surname}` 
-        return fullname
+          responseFormat('Invalid request passed', 400, null)
+       }
+       await User.updateOne({ _id: user }, { $set: { deletedAt: new Date() } })
+       const fullname: string = `${RemoveUser?.firstname} - ${RemoveUser?.surname}` 
+       return fullname
     }
 
 
@@ -88,13 +73,7 @@ class UserService {
       const RestoreUser = await User.findOne({ _id: user })
       if(!RestoreUser)
       {
-        let RESPONSE: { message: string, statusCode: number, data: any } = 
-        {
-          message: 'Invalid request passed',
-          statusCode: 404,
-          data: null
-        }
-        throw new Error(JSON.stringify(RESPONSE))
+        responseFormat('Invalid request passed', 400, null)
       }
       await User.updateOne({ _id: user }, { $set: { deletedAt: null } })
       const fullname: string = `${RestoreUser?.firstname} - ${RestoreUser?.surname}` 
@@ -104,58 +83,34 @@ class UserService {
 
     public async delete(user: string): Promise<Error | string | any>
     {
-        const DeleteUser = await User.findOne({ _id: user })
-        if(!DeleteUser)
-        {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
-        }
-        await User.deleteOne({ _id: user })
-        const fullname: string = `${DeleteUser?.firstname} - ${DeleteUser?.surname}` 
-        return fullname
+      const DeleteUser = await User.findOne({ _id: user })
+      if(!DeleteUser)
+      {
+        responseFormat('Invalid request passed', 400, null)
+      }
+      await User.deleteOne({ _id: user })
+      const fullname: string = `${DeleteUser?.firstname} - ${DeleteUser?.surname}` 
+      return fullname
     }
 
     public async authorize(user: string, department: string, role: string)
     {
-       const DoesUserExist = await User.findOne({ _id: user })
-       if(!DoesUserExist)
-       {
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-          {
-            message: 'Invalid user parameter passed',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))
-       } 
+      const DoesUserExist = await User.findOne({ _id: user })
+      if(!DoesUserExist)
+      {
+        responseFormat('Invalid user parameter passed', 400, null)
+      } 
        
-       const DoesDepartmentExist = await Department.findOne({ _id: department })
-       if(!DoesDepartmentExist)
-       {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-           message: 'Invalid department parameter passed',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+      const DoesDepartmentExist = await Department.findOne({ _id: department })
+      if(!DoesDepartmentExist)
+      {
+        responseFormat('Invalid department parameter passed', 400, null)
       } 
        
       const DoesRoleExist = await Department.findOne({ _id: role })
       if(!DoesRoleExist)
       {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-           message: 'Invalid role parameter passed',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+        responseFormat('Invalid role parameter passed', 400, null)
       } 
 
       let UserRole =  DoesUserExist?.role
@@ -184,13 +139,7 @@ class UserService {
        const DoesUserTypeExist = await UserType.findOne({ _id: userType })
        if(!DoesUserTypeExist)
        {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-           message: 'Invalid user parameter passed',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+         responseFormat('Invalid user parameter passed', 400, null)
        } 
 
        return await User.find(
@@ -214,13 +163,7 @@ class UserService {
        const DoesUserExist = await User.findOne({ _id: user })
        if(!DoesUserExist)
        {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-           message: 'Invalid user parameter passed',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+         responseFormat('Invalid user parameter passed', 400, null)
        } 
       if(!DoesUserExist)
       {
@@ -252,24 +195,12 @@ class UserService {
         const haSubscribed = await User.findOne({ email: email })
         if(haSubscribed)
         {
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-          {
-            message: 'User already subscribed',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('User already subscribed', 400, null)
         }
         const hasAnonymouseSubscribed = await Newsletter.findOne({ email: email })
         if(hasAnonymouseSubscribed)
         {
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-          {
-            message: `anonymous with email ${email} already subscribed`,
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))
+          responseFormat(`anonymous with email ${email} already subscribed`, 400, null)
         }
         await Newsletter.create({ email })
         return

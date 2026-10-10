@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import DivisionService from "@/service/management/division.service";
 import mongoose from "mongoose";
+import { errorProps, responseFormat } from "@/utils/response-format";
 
 
 class DivisionController implements IController {
@@ -49,17 +50,12 @@ class DivisionController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
+
         const page = req.query.page
         const limit = req.query.limit
 
         const divisions = await this.divisionService.divisions(Number(page), Number(limit));
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All Division',
-          data: divisions,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        return res.sendSuccess(divisions, `All Division`)
     }
     
     private categoryDivision = async (req: Request,
@@ -72,13 +68,7 @@ class DivisionController implements IController {
         const cateory = req.query.category as string
 
         const divisions = await this.divisionService.categoryDivision(cateory, Number(page), Number(limit))
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'Division',
-          data: divisions,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        return res.sendSuccess(divisions, `Division`)
     }
 
     private create = async (
@@ -91,35 +81,16 @@ class DivisionController implements IController {
             const { category, name, description } = req?.body
             if(!name || !description)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+                responseFormat('Account pending activation', 400, null)
             } else {
                 const NewlyCreated = await this.divisionService.create(category, name, description)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${NewlyCreated} created`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -133,46 +104,21 @@ class DivisionController implements IController {
             const { division, name, description } = req?.body
             if(!mongoose.isValidObjectId(division)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             }
 
             if(!name || !description)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+               responseFormat('Attempt to all field', 400, null)
             } else {
                 await this.divisionService.update(division, name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Category updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `Category updated`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -186,35 +132,16 @@ class DivisionController implements IController {
             const { division } = req?.body
             if(!mongoose.isValidObjectId(division) || !division) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed 11',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.divisionService.remove(division)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -228,35 +155,16 @@ class DivisionController implements IController {
             const { category } = req?.body
             if(!mongoose.isValidObjectId(category) || !category) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.divisionService.restore(category)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} restored`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} restored`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -270,35 +178,16 @@ class DivisionController implements IController {
             const { category, division } = req?.body
             if(!mongoose.isValidObjectId(category) || !mongoose.isValidObjectId(division)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.divisionService.delete(category, division)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} permanently deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} permanently deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }    
 

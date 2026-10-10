@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import DepartmentService from "@/service/management/department.service";
 import mongoose from "mongoose";
+import { errorProps, responseFormat } from "@/utils/response-format";
 
 
 class DepartmentController implements IController {
@@ -54,13 +55,7 @@ class DepartmentController implements IController {
         const limit = req.query.limit
 
         const categories = await this.departmentService.departments(Number(page), Number(limit))
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All departments',
-          data: categories,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        return res.sendSuccess(categories, `All departments`)
     }
 
     private create = async (
@@ -73,35 +68,16 @@ class DepartmentController implements IController {
             const { name, description } = req?.body
             if(!name || !description)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+                responseFormat('Attempt to all field', 400, null)
             } else {
                 const NewlyCreated = await this.departmentService.create(name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${NewlyCreated} created`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -114,47 +90,23 @@ class DepartmentController implements IController {
         {
             const { department, name, description } = req?.body
             if(!mongoose.isValidObjectId(department)) 
-            {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+            { 
+                responseFormat('Invalid parameter passed', 400, null)
             }
 
             if(!name || !description)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+                responseFormat('Attempt to all field', 400, null)
+
             } else {
                 await this.departmentService.update(department, name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Department updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `Department updated`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         } 
     }
 
@@ -168,35 +120,16 @@ class DepartmentController implements IController {
             const { department } = req?.body
             if(!mongoose.isValidObjectId(department) || !department) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.departmentService.remove(department)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -210,35 +143,16 @@ class DepartmentController implements IController {
             const { department } = req?.body
             if(!mongoose.isValidObjectId(department) || !department) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.departmentService.restore(department)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} restored`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} restored`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -249,38 +163,19 @@ class DepartmentController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            const { department } = req?.body
-            if(!mongoose.isValidObjectId(department) || !department) 
-            {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
-            } else {
-                const deetedAt = await this.departmentService.delete(department)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} permanently deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
-            }
+           const { department } = req?.body
+           if(!mongoose.isValidObjectId(department) || !department) 
+           {    
+              responseFormat('Invalid parameter passed', 400, null)
+           } else {
+               const deetedAt = await this.departmentService.delete(department)
+               return res.sendSuccess({}, `${deetedAt} permanently deleted`)
+           }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -294,24 +189,16 @@ class DepartmentController implements IController {
             const department = req.params.department
             if(!mongoose.isValidObjectId(department) || !department) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const DepartmentRoles = await this.departmentService.roles(department)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `Department roles`,
-                    data: { DepartmentRoles },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess(DepartmentRoles, `Department roles`)
             }
         } catch (error: any) {
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }      
 

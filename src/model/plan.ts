@@ -5,6 +5,11 @@ const PlanSchema = new Schema(
     { 
         plan:      {  type : String, maxlength : 130, unique : true, required : [true, 'plan name is required'] },
         price:     {  type: Number, max: 30, trim: true, required : [true, 'price is required'] },
+        highlights:[  
+                      { status: { type: String, default: false } },
+                      { content: { type: String, default: null } },
+                      { line: { type: String, default: null } }
+                   ]
     },
     { timestamps : true }
 );

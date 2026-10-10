@@ -33,13 +33,7 @@ class ProfileController implements IController {
                 
         const user = req.params.id
         const allUsers = await this.userService.profile(user)
-        let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-           message: 'User data',
-           statusCode: 200,
-           data: allUsers 
-         }
-        res.status(200).json(RESPONSE)
+        return res.sendSuccess(allUsers, `User data`)
     }
     
     // private search = async(

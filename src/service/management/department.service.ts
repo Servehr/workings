@@ -1,6 +1,7 @@
 import Department from "@/model/department";
 import Privilege from "@/model/privilege";
 import { paginate } from "@/utils/pagination";
+import { responseFormat } from "@/utils/response-format";
 
 
 
@@ -31,12 +32,7 @@ class DepartmentService {
         const departmentToUpdate = await Department.findOne({ _id: department })
         if(!departmentToUpdate)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))         
+          responseFormat('Invalid request passed', 400, null)        
         }
         await Department.updateOne({ _id: department }, { $set: { name: name, description: description } }) 
         return departmentToUpdate?.name
@@ -48,13 +44,7 @@ class DepartmentService {
         const RemoveDepartment = await Department.findOne({ _id: department })
         if(!RemoveDepartment)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
         }
         await Department.updateOne({ _id: department }, { $set: { deletedAt: new Date() } })
         return RemoveDepartment?.name
@@ -66,13 +56,7 @@ class DepartmentService {
         const RestoreDepartment = await Department.findOne({ _id: department })
         if(!RestoreDepartment)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
         }
         await Department.updateOne({ _id: department }, { $set: { deletedAt: null } })
         return RestoreDepartment?.name
@@ -84,13 +68,7 @@ class DepartmentService {
         const DeleteDepartment = await Department.findOne({ _id: department })
         if(!DeleteDepartment)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
         }
         await Department.deleteOne({ _id: department })
         return DeleteDepartment?.name
@@ -101,24 +79,12 @@ class DepartmentService {
        const dept = await Department.findById(department)
        if(!dept)
        {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-            message: 'Invalid request passed',
-            statusCode: 404,
-            data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
        }
        const checkAssignment = await Privilege.findOne({ department: department })
        if(!checkAssignment)
        {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-            message: 'Role already assigned department',
-            statusCode: 404,
-            data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Role already assigned department', 400, null)
        }
        const posts = await Privilege.find({ department: department }, { '_id': 0, 'department': 0, 'createdAt': 0, 'updatedAt': 0, '__v': 0 })
                            .populate([ {  path: 'role',  match: { isDeleted: null }, select: '_id, name' }])

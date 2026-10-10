@@ -2,12 +2,13 @@ import Country from "@/model/management/country";
 import State from "@/model/management/state";
 import Lga from "@/model/management/lga";
 import { paginate } from "@/utils/pagination";
+import { responseFormat } from "@/utils/response-format";
 
 
 class CountryService {
 
     
-    public async countries(): Promise<Error | String | any>
+    public async countries(page: number, limit: number): Promise<Error | String | any>
     {
         // return await Country.find(
         //   {  
@@ -59,12 +60,7 @@ class CountryService {
         const CountryToUpdate = await Country.findOne({ _id: country })
         if(!CountryToUpdate)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))         
+           responseFormat('Invalid request passed', 400, null)         
         }
         await Country.updateOne({ _id: country }, { $set: { name: name } }) 
         return CountryToUpdate?.name
@@ -76,13 +72,7 @@ class CountryService {
         const RemoveCountry = await Country.findOne({ _id: country })
         if(!RemoveCountry)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+           responseFormat('Invalid request passed', 400, null)  
         }
         const CountryStates = RemoveCountry?.states
         for (let index = 0; index < CountryStates.length; index++) 
@@ -106,13 +96,7 @@ class CountryService {
         const RestoreCountry = await Country.findOne({ _id: country })
         if(!RestoreCountry)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+           responseFormat('Invalid request passed', 400, null)  
         }        
         const CountryStates = RestoreCountry?.states
         for (let index = 0; index < CountryStates.length; index++) 
@@ -136,13 +120,7 @@ class CountryService {
         const DeleteCountry = await Country.findOne({ _id: country })
         if(!DeleteCountry)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+           responseFormat('Invalid request passed', 400, null)  
         }
         const CountryStates = DeleteCountry?.states
         for (let index = 0; index < CountryStates.length; index++) 

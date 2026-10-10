@@ -1,12 +1,13 @@
 import State from "@/model/management/state";
 import Lga from "@/model/management/lga";
+import { responseFormat } from "@/utils/response-format";
 
 
 
 class LgaService {
 
     
-    public async lgas(): Promise<Error | String | any>
+    public async lgas(page: number, limit: number): Promise<Error | String | any>
     {
         return await Lga.find(
           {  
@@ -37,12 +38,7 @@ class LgaService {
         const LgaToUpdate = await Lga.findOne({ _id: lga })
         if(!LgaToUpdate)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))         
+           responseFormat('Invalid request passed', 400, null)        
         }
         await Lga.updateOne({ _id: lga }, { $set: { name: name } }) 
         return LgaToUpdate?.name
@@ -54,13 +50,7 @@ class LgaService {
         const RemoveLga = await Lga.findOne({ _id: lga })
         if(!RemoveLga)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
         }
         await Lga.updateOne({ _id: lga }, { $set: { deletedAt: new Date() } })
         return RemoveLga?.name
@@ -72,13 +62,7 @@ class LgaService {
         const RestoreLga = await Lga.findOne({ _id: lga })
         if(!RestoreLga)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+           responseFormat('Invalid request passed', 400, null)
         }
         await Lga.updateOne({ _id: lga }, { $set: { deletedAt: null } })
         return RestoreLga?.name
@@ -90,13 +74,7 @@ class LgaService {
         const DeleteLga = await Lga.findOne({ _id: lga })
         if(!DeleteLga)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+           responseFormat('Invalid request passed', 400, null)
         }
         await Lga.deleteOne({ _id: lga })
         return DeleteLga?.name

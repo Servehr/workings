@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import PlanService from "@/service/plan.service";
 import mongoose from "mongoose";
+import { errorResponse, responseFormat } from "@/utils/response-format";
 
 
 class PlanController implements IController {
@@ -28,20 +29,32 @@ class PlanController implements IController {
             // validateMiddleware(validate.register),
             this.update
         )
+        this.router.put(`${this.path}/hgighlight-update`,
+            // validateMiddleware(validate.register),
+            this.highlightUpdate
+        )
+        this.router.put(`${this.path}/hgighlight-removed`,
+            // validateMiddleware(validate.register),
+            this.removeHighlight
+        )
+        this.router.put(`${this.path}/hgighlight-restored`,
+            // validateMiddleware(validate.register),
+            this.restoredHighlight
+        )
+        this.router.put(`${this.path}/delete-highlight`,
+            // validateMiddleware(validate.register),
+            this.deleteHighlight
+        )
     }
 
+    
     private plans = async (req: Request,
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
+
         const plans = await this.planService.plans();
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All plans',
-          data: plans,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        return res.sendSuccess(plans, `All plans`)
     }
 
     private create = async (
@@ -51,38 +64,17 @@ class PlanController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            const { plan, price } = req?.body
-            if(!plan || !price)
+            const { plan, price, highlights } = req?.body
+            if(!plan || !price || !highlights)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+                responseFormat('Account pending activation', 400, null)
             } else {
-                const NewlyCreated = await this.planService.create(plan.toLowerCase(), price.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                const NewlyCreated = await this.planService.create(plan.toLowerCase(), price.toLowerCase(), highlights)
+                return res.sendSuccess({}, `${NewlyCreated} created`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            errorResponse(res, error)
         }
     }
 
@@ -93,54 +85,130 @@ class PlanController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            const { plans, plan, price } = req?.body
-            if(!mongoose.isValidObjectId(plans)) 
+            const { plann, plan, price } = req?.body
+            if(!mongoose.isValidObjectId(plann)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             }
 
             if(!plan || !price)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+                responseFormat('Attempt to all field', 400, null)
             } else {
-                await this.planService.update(plans, plan.toLowerCase(), price.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Plan updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                await this.planService.update(plann, plan.toLowerCase(), price.toLowerCase())
+                return res.sendSuccess({}, `Plan updated`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            errorResponse(res, error)
         }
     }
-       
 
+    private highlightUpdate = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try 
+        {
+            const { plan, hightlight } = req?.body
+            if(!mongoose.isValidObjectId(plan)) 
+            {    
+               responseFormat('Invalid parameter passed', 400, null)
+            }
 
+            if(!hightlight)
+            {                
+                responseFormat('Attempt to all field', 400, null)
+            } else {
+                await this.planService.updateHightlight(plan, hightlight)
+                return res.sendSuccess({}, `Plan hightlight updated`)
+            }
+        } catch (error: any) {
+            
+            errorResponse(res, error)
+        }
+    }
+
+    private removeHighlight = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try 
+        {
+            const { plan, highlight } = req?.body
+            if(!mongoose.isValidObjectId(plan)) 
+            {    
+               responseFormat('Invalid parameter passed', 400, null)
+            }
+
+            if(!highlight)
+            {                
+                responseFormat('Attempt to all field', 400, null)
+            } else {
+                await this.planService.removeHighlight(plan, highlight)
+                return res.sendSuccess({}, `Plan hightlight removed`)
+            }
+        } catch (error: any) {
+            
+            errorResponse(res, error)
+        }
+    }
+
+    private restoredHighlight = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try 
+        {
+            const { plan, highlight } = req?.body
+            if(!mongoose.isValidObjectId(plan)) 
+            {    
+               responseFormat('Invalid parameter passed', 400, null)
+            }
+
+            if(!highlight)
+            {                
+                responseFormat('Attempt to all field', 400, null)
+            } else {
+                await this.planService.restoreHighlight(plan, highlight)
+                return res.sendSuccess({}, `Plan hightlight restored`)
+            }
+        } catch (error: any) {
+            
+            errorResponse(res, error)
+        }
+    }
+
+    private deleteHighlight = async (
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ): Promise<Response | void> => {
+        try 
+        {
+          const { plan, highlight } = req?.body
+          if(!mongoose.isValidObjectId(plan)) 
+          {    
+            responseFormat('Invalid parameter passed', 400, null)
+          }
+
+          if(!highlight)
+          {                
+            responseFormat('Attempt to all field', 400, null)
+          } else {
+             await this.planService.deleteHighlight(plan, highlight)
+             return res.sendSuccess({}, `Plan hightlight deleted`)
+          }
+        } catch (error: any) {
+            
+            errorResponse(res, error)
+        }
+    }
+
+    
 }
 
 export default PlanController;

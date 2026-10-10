@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import UserService from "@/service/user.service";
 import mongoose from "mongoose";
+import { errorProps, responseFormat } from "@/utils/response-format";
 
 class UserController implements IController {
 
@@ -71,14 +72,9 @@ class UserController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        const categories = await this.userService.users();
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All Users',
-          data: categories,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+
+        const users = await this.userService.users();
+        return res.sendSuccess(users, `All User`)
     }
 
     private create = async (
@@ -90,36 +86,17 @@ class UserController implements IController {
         {
             const { user } = req?.body
             if(user)
-            {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+            {               
+                responseFormat('Attempt to all field', 400, null)
             } else {
                 const NewlyCreated = await this.userService.create(user)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${NewlyCreated} created`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -133,46 +110,21 @@ class UserController implements IController {
             const { user } = req?.body
             if(!mongoose.isValidObjectId(user?.user)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             }
 
             if(!user)
-            {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+            {        
+                responseFormat('Attempt to all field', 400, null)
             } else {
                 await this.userService.update(user)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'user updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `user updated`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -186,35 +138,16 @@ class UserController implements IController {
             const { user } = req?.body
             if(!mongoose.isValidObjectId(user)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.userService.remove(user)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -228,35 +161,16 @@ class UserController implements IController {
             const { user } = req?.body
             if(!mongoose.isValidObjectId(user)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.userService.restore(user)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} restored`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} restored`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -270,24 +184,16 @@ class UserController implements IController {
             const { user } = req?.body
             if(!mongoose.isValidObjectId(user))
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.userService.delete(user)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} permanently deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} permanently deleted`)
             }
         } catch (error: any) {
+            
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)            
         }
     }
 
@@ -302,37 +208,17 @@ class UserController implements IController {
             const { user, department, role } = req?.body
             if(!mongoose.isValidObjectId(department) && !!mongoose.isValidObjectId(role)) 
             {    
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-                message: 'Invalid parameter passed',
-                data: { },
-                statusCode: 404
-            }
-            res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
-            const authoring = await this.userService.authorize(user, department, role)
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-                message: authoring!,
-                data: {  },
-                statusCode: 200
-            }
-            res.status(200).json(data)
+                const authoring = await this.userService.authorize(user, department, role)
+                return res.sendSuccess({}, authoring!)
             }
             
         } catch (error: any) {
             
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)   
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)  
         }
     }  
 
@@ -344,26 +230,14 @@ class UserController implements IController {
         try 
         {
            const type = req?.params?.type
-           const deetedAt = await this.userService.userLists(type)
-           const data: { message: string, data: object, statusCode: number } = 
-           {
-              message: `All user`,
-              data: { },
-              statusCode: 200
-           }
-           res.status(200).json(data)
+           await this.userService.userLists(type)
+           return res.sendSuccess({}, 'All user')
+           
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     } 
 
@@ -376,25 +250,13 @@ class UserController implements IController {
         {
            const type = req?.params?.type
            const user = await this.userService.profile(type)
-           const data: { message: string, data: object, statusCode: number } = 
-           {
-              message: `${user?.firstname} ${user?.surname} info`,
-              data: { },
-              statusCode: 200
-           }
-           res.status(200).json(data)
+           return res.sendSuccess({}, `${user?.firstname} ${user?.surname} info`)
+
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -408,25 +270,13 @@ class UserController implements IController {
         {
           const user = req.params.user
           const searchResult = await this.userService.searchUser(user)
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-             message: 'Search result',
-             statusCode: 200,
-             data: searchResult 
-           }
-           res.status(200).json(RESPONSE)
+          return res.sendSuccess(searchResult, `Searched result`)
+
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: any = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }  
 
@@ -440,25 +290,13 @@ class UserController implements IController {
         {
           const { email } = req.body
           const subscription = await this.userService.newsLetter(email)
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-             message: 'Subscription successful',
-             statusCode: 200,
-             data: subscription 
-           }
-           res.status(200).json(RESPONSE)
+          return res.sendSuccess(subscription, `Subscription successful`)
+
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: any = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     } 
 
@@ -471,25 +309,13 @@ class UserController implements IController {
         try
         {
           const subscribers = await this.userService.subscribers()
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-             message: 'subscribers',
-             statusCode: 200,
-             data: subscribers 
-           }
-           res.status(200).json(RESPONSE)
+          return res.sendSuccess(subscribers, `subscribers`)
+
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: any = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }    
     private fastResponse = async (
@@ -503,25 +329,13 @@ class UserController implements IController {
           const { firstname, surname, phone, email, message } = req?.body
           
           const formResponse = await this.userService.fastResponse(firstname, surname, phone, email, message)
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-             message: 'Form Sent',
-             statusCode: 200,
-             data: formResponse 
-           }
-           res.status(200).json(RESPONSE)
+          return res.sendSuccess(formResponse, `Form Sent`)
+          
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: any = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+           let err = JSON.parse(error.message)
+           const { errMsg, code, data } = errorProps(err)
+           res.sendError(errMsg, code, data)
         }
     }    
 

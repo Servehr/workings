@@ -77,12 +77,12 @@ class AuthController implements IController {
         try 
         {
             const { 
-                    firstname, surname, phone, email, password, cPassword, category 
+                    firstname, surname, phone, email, password, category, ninImage, passportImage
             } = req?.body
             
             let userType: string = category?.toLowerCase()
             await this.authService.register(
-               firstname, surname, phone, email, password, userType
+               firstname, surname, phone, email, password, userType, ninImage, passportImage
             )
             return res.sendSuccess({}, 'Registration successful, activation mail has been sent to you');
 
@@ -117,20 +117,13 @@ class AuthController implements IController {
                },
                statusCode: 200
             }
-            res.status(200).json(data)
+            return res.sendSuccess(data, `Authentication Successful`);
 
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: any = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -145,26 +138,12 @@ class AuthController implements IController {
             await this.authService.activateUserAccount(hash)
             const { FRONTEND_URL } = process.env
             res.redirect(FRONTEND_URL+'auth/login')
-            // const data: { message: string, data: object, statusCode: number } = 
-            // {
-            //    message: 'Activation successful',
-            //    data: { },
-            //    statusCode: 200
-            // }
-            // res.status(200).json(data)
 
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: any = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -207,26 +186,13 @@ class AuthController implements IController {
         {
             const { email } = req.body
             await this.authService.forgot(email)
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: 'Reset link sent to email.',
-               data: { },
-               statusCode: 200
-            }
-            res.status(200).json(data)
+            return res.sendSuccess('Reset link sent to email', ``);
 
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: any = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -267,25 +233,13 @@ class AuthController implements IController {
           }
 
           const passwordReset = await this.authService.resetPassword(password, user)
-          const data: { message: string, data: object, statusCode: number } = 
-          {
-            message: passwordReset,
-            data: { },
-            statusCode: 200
-          }
-          res.status(200).json(data)
+          return res.sendSuccess('Reset link sent to email', passwordReset);
+
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: any = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)            
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)          
         }
 
 

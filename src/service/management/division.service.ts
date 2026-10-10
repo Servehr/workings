@@ -1,6 +1,7 @@
 import Category from "@/model/management/category";
 import Division from "@/model/management/division";
 import { paginate } from "@/utils/pagination";
+import { responseFormat } from "@/utils/response-format";
 
 
 class DivisionService {
@@ -32,15 +33,10 @@ class DivisionService {
        const divisionToUpdate = await Division.findOne({ _id: division })
        if(!divisionToUpdate)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = {
-            message: 'Invalid request passed',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))         
-        }
-        await Division.updateOne({ _id: division }, { $set: { name: name, description: description } }) 
-        return divisionToUpdate?.name
+         responseFormat('Invalid request passed', 400, null)         
+       }
+       await Division.updateOne({ _id: division }, { $set: { name: name, description: description } }) 
+       return divisionToUpdate?.name
     }
 
 
@@ -49,16 +45,10 @@ class DivisionService {
        const RemoveDivision = await Division.findOne({ _id: division })
        if(!RemoveDivision)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-          {
-            message: 'Invalid request passed 1',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))
-        }
-        await Division.updateOne({ _id: division }, { $set: { deletedAt: new Date() } })
-        return RemoveDivision?.name
+          responseFormat('Invalid request passed', 400, null)
+       }
+       await Division.updateOne({ _id: division }, { $set: { deletedAt: new Date() } })
+       return RemoveDivision?.name
     }
 
 
@@ -67,13 +57,7 @@ class DivisionService {
         const RestoreDivision = await Division.findOne({ _id: division })
         if(!RestoreDivision)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
         }
         await Division.updateOne({ _id: division }, { $set: { deletedAt: null } })
         return RestoreDivision?.name
@@ -85,24 +69,12 @@ class DivisionService {
        const DeleteDivision = await Division.findOne({ _id: division })
        if(!DeleteDivision)
        {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-           message: 'Invalid request passed',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
        }
        const Categ = await Category.findOne({ _id: category })
        if(!Categ)
        {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-           message: 'Invalid request passed',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
        }
        await Division.deleteOne({ _id: division })       
        await Category.findByIdAndUpdate(category, 

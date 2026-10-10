@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import JobService from "@/service/job.service";
 import mongoose from "mongoose";
+import { errorProps, responseFormat } from "@/utils/response-format";
 
 
 class JobController implements IController {
@@ -50,14 +51,8 @@ class JobController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        const plans = await this.jobService.jobs();
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All jobs',
-          data: plans,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        const jobs = await this.jobService.jobs();
+        return res.sendSuccess(jobs, `All jobs`)
     }
 
     private jobStatus = async (req: Request,
@@ -66,14 +61,8 @@ class JobController implements IController {
     ) : Promise<Response | void> => {
 
         const status = req.params.status
-        const plans = await this.jobService.jobStatus(status);
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: `All ${status} job`,
-          data: plans,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        const jobs = await this.jobService.jobStatus(status);
+        return res.sendSuccess(jobs, `All ${status} job`)
     }
 
     private cancelJob = async (req: Request,
@@ -83,13 +72,7 @@ class JobController implements IController {
 
         const { status, job } = req.body
         const CancelledJob = await this.jobService.cancelJob(status, job);
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: CancelledJob,
-          data: { },
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        return res.sendSuccess({}, CancelledJob)
     }
 
     private create = async (
@@ -100,48 +83,22 @@ class JobController implements IController {
         try 
         {
             const { job } = req?.body;
-            // res.status(200).json(job)
             if(!mongoose.isValidObjectId(job?.category)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                 message: 'Invalid parameter passed',
-                 data: { },
-                 statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             }
             if(!job)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+               responseFormat('Attempt to all field', 400, null)
             } else {
                 const NewlyCreated = await this.jobService.create(job)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated}`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${NewlyCreated}`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -152,13 +109,7 @@ class JobController implements IController {
 
        const { job } = req.body
        await this.jobService.removeJob(job);
-       const data: { message: string, data: object, statusCode: number } = 
-       {
-         message: `Job deleted`,
-         data: { },
-         statusCode: 200
-       }
-       res.status(200).json(data)
+       return res.sendSuccess({}, `Job deleted`)
     }
 
     private restoreJob = async (req: Request,
@@ -168,13 +119,7 @@ class JobController implements IController {
 
        const { job } = req.body
        await this.jobService.restoreJob(job);
-       const data: { message: string, data: object, statusCode: number } = 
-       {
-         message: `Job restored`,
-         data: { },
-         statusCode: 200
-       }
-       res.status(200).json(data)
+       return res.sendSuccess({}, `Job restored`)
     }
 
     private deleteJob = async (req: Request,
@@ -184,13 +129,7 @@ class JobController implements IController {
 
        const { job } = req.body
        await this.jobService.deleteJob(job);
-       const data: { message: string, data: object, statusCode: number } = 
-       {
-         message: `Job permanently deleted`,
-         data: { },
-         statusCode: 200
-       }
-       res.status(200).json(data)
+       return res.sendSuccess({}, `Job permanently deleted`)
     }
 
 

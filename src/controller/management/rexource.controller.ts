@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import RexourceService from "@/service/management/rexource.service";
 import mongoose from "mongoose";
-import { errorResponse } from "@/utils/response-format";
+import { errorProps, errorResponse, responseFormat } from "@/utils/response-format";
 
 
 class RexourceController implements IController {
@@ -79,35 +79,16 @@ class RexourceController implements IController {
             const { name, description } = req?.body
             if(!name || !description)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+               responseFormat('Attempt to all field', 400, null)
             } else {
                 const NewlyCreated = await this.rexourceService.create(name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${NewlyCreated} created`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -121,46 +102,22 @@ class RexourceController implements IController {
             const { rexource, name, description } = req?.body
             if(!mongoose.isValidObjectId(rexource)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             }
 
             if(!name || !description)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+                responseFormat('Attempt to all field', 400, null)
             } else {
+
                 await this.rexourceService.update(rexource, name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Resource updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `Resource updated`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -174,35 +131,16 @@ class RexourceController implements IController {
             const { rexource } = req?.body
             if(!mongoose.isValidObjectId(rexource) || !rexource) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.rexourceService.remove(rexource)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -216,35 +154,17 @@ class RexourceController implements IController {
             const { rexource } = req?.body
             if(!mongoose.isValidObjectId(rexource) || !rexource) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
+
             } else {
                 const deetedAt = await this.rexourceService.restore(rexource)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} restored`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} restored`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -258,35 +178,16 @@ class RexourceController implements IController {
             const { rexource } = req?.body
             if(!mongoose.isValidObjectId(rexource) || !rexource) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.rexourceService.delete(rexource)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} permanently deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} permanently deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }   
     
@@ -299,8 +200,10 @@ class RexourceController implements IController {
         {
           const { resource } = req.body
           const roleResources = await this.rexourceService.resourceRole(resource)
-          return res.sendSuccess(roleResources, ``)                
+          return res.sendSuccess(roleResources, ``)    
+
         } catch (error: any) {        
+            
            errorResponse(res, error)           
         }
     }   
@@ -315,8 +218,10 @@ class RexourceController implements IController {
           const role = req.query.role as string
           const resource = req.query.resource as string
           const pagesActions = await this.rexourceService.rexourcesPageAktions(role, resource)
-          return res.sendSuccess(pagesActions, ``)                
+          return res.sendSuccess(pagesActions, ``)
+                          
         } catch (error: any) {        
+
            errorResponse(res, error)           
         }
     }

@@ -1,4 +1,3 @@
-import { Response } from "express";
 import Token from "@/helper/token";
 import IUser from "@/interfaceIUser";
 import User, { saltRounds } from "@/model/user";
@@ -11,6 +10,8 @@ import ResetPassword from "@/model/reset-password";
 import ResetPasswordHistory from "@/model/reset-password-history";
 import { sendEmailToUserForgot } from "@/helper/send-email-forgot";
 import { responseFormat } from "@/utils/response-format";
+import { uploadImages } from "@/utils/uploadImages";
+
 
 
 
@@ -24,8 +25,25 @@ class AuthService {
         email: string,
         password: string,
         userType: string,
+        ninImage: string,
+        passportImage: string
     ): Promise<IUser | Error | String>
     {
+      let imgs: string[] = []
+      const registrationImages: { image: string, folder: string }[] = [{ image: ninImage, folder: 'nin' }, { image: passportImage, folder: 'passport' }]
+      
+      await uploadImages(registrationImages)
+      .then((results) => 
+      {
+         const secureUrls: any = results.map(result => result.secure_url)
+         imgs.push(secureUrls)
+      })
+
+      if(imgs.length === 0)
+      {
+         responseFormat('Uplading image to server failed', 400, null)
+      }
+
       const user = await User.findOne({ email });
       if(user)
       { 
@@ -36,7 +54,10 @@ class AuthService {
       const randomValues: string = random.character(60)
       const activation_url: string = BACKEND_URL+'auth/activate-account/'+randomValues
 
-      const newUser = await User.create({ firstname, surname, phone, email, password, userType })
+      const nin = imgs[0]
+      const passport = imgs[1]
+
+      const newUser = await User.create({ firstname, surname, phone, email, password, userType, nin, passport })
       const activate = await ActivateAccount.create({ userId: newUser?._id, hashString: randomValues })
       await User.updateOne({ _id: newUser?._id }, { $set: { activateAccount: activate?._id } })
 
@@ -149,21 +170,11 @@ class AuthService {
       const user = await User.findOne({ email })
       if(!user)
       {
-         let RESPONSE: { message: string, statusCode: number, data: any } = {
-           message: 'Invalid username or password',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+         responseFormat('Invalid username or password', 400, null)
       }
       if(user?.status != 'active')
       {
-         let RESPONSE: { message: string, statusCode: number, data: any } = {
-           message: 'Account pending activation',
-           statusCode: 404,
-           data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE))
+         responseFormat('Account pending activation', 400, null)
       }
       // send reset password link
       const { BACKEND_URL } = process.env;
@@ -173,45 +184,33 @@ class AuthService {
       const hashing = str.replace(/\s+/g, '')
       const activation_url: string = BACKEND_URL+'auth/verify-account/'+hashing
 
-      Object.assign(user, { url: activation_url})
+      if(user)
+      {
+        Object.assign(user, { url: activation_url})
+      }     
 
       const userId: string = user?._id
 
       const resetPswd = await ResetPassword.create({ userId, hashString: hashing })
       if(!resetPswd)
       {
-         let RESPONSE: { message: string, statusCode: number, data: any } = {
-           message: 'Activation process failed',
-           statusCode: 404,
-           data: null
-         }
-         await ResetPassword.deleteOne({ _id: resetPswd?._id })
-         throw new Error(JSON.stringify(RESPONSE))         
+        await ResetPassword.deleteOne({ _id: resetPswd?._id })         
+        responseFormat('Activation process failed', 400, null)      
       }
        
       try 
       {
           const sendUserMail = await sendEmailToUserForgot(user)
           if(sendUserMail === false)
-          {
-            let RESPONSE: { message: string, statusCode: number, data: any } = {
-              message: 'Email server is currently down',
-              statusCode: 404,
-              data: null
-            }
-            throw new Error(JSON.stringify(RESPONSE))
+          {            
+            responseFormat('Email server is currently down', 400, null)
           }
           return  
 
       } catch (error) {
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-          {
-            message: 'Email server is currently down',
-            statusCode: 404,
-            data: null
-          }
+        
           await ResetPassword.deleteOne({ _id: resetPswd?._id })
-          throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Email server is currently down', 400, null)
       }
     }
 
@@ -220,12 +219,7 @@ class AuthService {
        const resetPass = await ResetPassword.findOne({ hashString: hash })
        if(!resetPass)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = {
-            message: 'Setting new password failed',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))
+         responseFormat('Setting new password failed', 400, null)
        }
        const userId: string = resetPass?.userId
        const hashString: string = resetPass?.hashString
@@ -251,13 +245,8 @@ class AuthService {
       const Uzer = await User.findOne({ _id: user })
       if(!Uzer)
       {
-        let RESPONSE: { message: string, statusCode: number, data: any } = {
-           message: 'Error setting new password',
-           statusCode: 404,
-           data: null
-        }
-        throw new Error(JSON.stringify(RESPONSE))
-       }
+        responseFormat('Error setting new password', 400, null)
+      }
 
       const hash = await bcrypt.hash(password, saltRounds)
       await User.findOneAndUpdate({ _id: user }, { $set: { password: hash } })
