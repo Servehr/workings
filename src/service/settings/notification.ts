@@ -1,3 +1,4 @@
+import { responseFormat } from "@/utils/response-format";
 import { Twilio } from "twilio";
 
 
@@ -24,13 +25,7 @@ class NotificationService {
          const status: string = "Notification sent"
          return status
        } catch (error: any) {
-           let RESPONSE: { message: any, statusCode: number, data: any } = 
-           {
-              message: error,
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE)) 
+            responseFormat(error, 400, null)
 
        }       
     }

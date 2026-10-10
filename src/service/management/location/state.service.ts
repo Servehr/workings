@@ -1,6 +1,7 @@
 import Country from "@/model/management/country";
 import State from "@/model/management/state";
 import Lga from "@/model/management/lga";
+import { responseFormat } from "@/utils/response-format";
 
 
 
@@ -31,12 +32,7 @@ class StateService {
        const CountryState = await Country.findOne({ _id: country })
        if(!CountryState)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = {
-             message: 'Invalid request passed',
-             statusCode: 404,
-             data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))         
+          responseFormat('Invalid request passed', 400, null)       
        }
 
        const NewState = await State.create({ name, country })
@@ -53,12 +49,7 @@ class StateService {
         const StateToUpdate = await State.findOne({ _id: state })
         if(!StateToUpdate)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))         
+          responseFormat('Invalid request passed', 400, null)        
         }
         await State.updateOne({ _id: state }, { $set: { name: name } }) 
         return StateToUpdate?.name
@@ -70,13 +61,7 @@ class StateService {
         const RemoveState = await State.findOne({ _id: state })
         if(!RemoveState)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
         }
 
         const StateLgas = RemoveState?.lgas
@@ -101,13 +86,7 @@ class StateService {
         const RestoreState = await State.findOne({ _id: state })
         if(!RestoreState)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
         }
 
         const StateLgas = RestoreState?.lgas
@@ -132,13 +111,7 @@ class StateService {
         const DeleteState = await State.findOne({ _id: state })
         if(!DeleteState)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
         }
 
         const StateLgas = DeleteState?.lgas

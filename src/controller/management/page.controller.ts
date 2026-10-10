@@ -3,6 +3,7 @@ import IController from "@/interfaceIController"
 import mongoose from "mongoose";
 import PageService from "@/service/management/page.service";
 import RexourceService from "@/service/management/rexource.service";
+import { errorProps, responseFormat } from "@/utils/response-format";
 
 
 
@@ -75,14 +76,9 @@ class PageController implements IController {
         res: Response
     ) : Promise<Response | void> => {
 
-        console.log("#####################")
         const page = req.query.page as string
-        console.log(page)
-        const actions = await this.pageService.pageActions(page);
-        console.log("+++++++++++++++++++++")
-        console.log(actions)
-        console.log("+++++++++++++++++++++")
-        return res.sendSuccess(actions, `All page Actions`);
+        const actions = await this.pageService.pageActions(page)
+        return res.sendSuccess(actions, `All page Actions`)
     }    
 
     private create = async (
@@ -94,36 +90,17 @@ class PageController implements IController {
         {
             const { name, description } = req?.body
             if(!name || !description)
-            {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+            {       
+                responseFormat('Attempt all field', 400, null)
             } else {
                 const NewlyCreated = await this.pageService.create(name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${NewlyCreated} created`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                            
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     }
 
@@ -137,46 +114,21 @@ class PageController implements IController {
             const { page, name, description } = req?.body
             if(!mongoose.isValidObjectId(page)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             }
 
             if(!name || !description)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+               responseFormat('Attempt to all field', 400, null)
             } else {
                 await this.pageService.update(page, name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Page updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `Page updated`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                            
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     }
 
@@ -190,35 +142,16 @@ class PageController implements IController {
             const { page } = req?.body
             if(!mongoose.isValidObjectId(page) || !page) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.pageService.remove(page)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                            
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     }
 
@@ -232,35 +165,16 @@ class PageController implements IController {
             const { page } = req?.body
             if(!mongoose.isValidObjectId(page) || !page) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.pageService.restore(page)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} restored`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} restored`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                            
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     }
 
@@ -274,35 +188,16 @@ class PageController implements IController {
             const { rexource, page } = req?.body
             if(!mongoose.isValidObjectId(rexource) && !mongoose.isValidObjectId(page)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.pageService.delete(rexource, page)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} permanently deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} permanently deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                            
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     } 
 
@@ -314,52 +209,24 @@ class PageController implements IController {
         try 
         {
             const { rexource, pages } = req?.body
-            console.log("#####################")
-            console.log(rexource, pages)
-            console.log("#####################")
             if(!mongoose.isValidObjectId(rexource) || !rexource) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } 
 
             if(!Array.isArray(pages) && pages?.length > 0)
             {
-               let RESPONSE: { message: string, statusCode: number, data: any } = 
-               {
-                  message: 'Page(s) has to be an array with one or more page',
-                  statusCode: 404,
-                  data: null
-               }
-               throw new Error(JSON.stringify(RESPONSE))
+               responseFormat('Page(s) has to be an array with one or more page', 400, null)
             }   
             
             const repage = await this.pageService.connectPageToRexource(rexource, pages)
-            const data: { message: string, data: object, statusCode: number } = 
-             {
-                message: `${repage}`,
-                data: { },
-                statusCode: 200
-             }
-            res.status(200).json(data)
+            return res.sendSuccess({}, `${repage}`)
 
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                            
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     } 
         
@@ -371,52 +238,24 @@ class PageController implements IController {
         try 
         {
             const { rexource, pages } = req?.body
-            console.log("*******************")
-            console.log(rexource, pages)
-            console.log("*******************")
             if(!mongoose.isValidObjectId(rexource) || !rexource) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } 
 
             if(!Array.isArray(pages) && pages?.length > 0)
             {
-               let RESPONSE: { message: string, statusCode: number, data: any } = 
-               {
-                  message: 'Page(s) has to be an array with one or more page',
-                  statusCode: 404,
-                  data: null
-               }
-               throw new Error(JSON.stringify(RESPONSE))
+               responseFormat('Page(s) has to be an array with one or more page', 400, null)
             }   
             
             const repage = await this.pageService.disconnectPageFromRexource(rexource, pages)
-            const data: { message: string, data: object, statusCode: number } = 
-             {
-                message: `${repage}`,
-                data: { },
-                statusCode: 200
-             }
-            res.status(200).json(data)
+            return res.sendSuccess({}, `${repage}`)
             
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                            
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     }
 

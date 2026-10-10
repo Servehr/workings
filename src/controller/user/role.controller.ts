@@ -28,7 +28,7 @@ class RoleController implements IController {
     ): Promise<Response | void> => 
     {
         const allUsers = await this.departmentService.categories()
-        res.status(200).json(allUsers)
+        return res.sendSuccess(allUsers, `User data`)
     }
 
 }

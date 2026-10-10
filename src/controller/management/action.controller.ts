@@ -2,6 +2,8 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import ActionService from "@/service/management/action.service";
 import mongoose from "mongoose";
+import RexourceService from "@/service/management/rexource.service";
+import { errorProps, responseFormat } from "@/utils/response-format";
 
 
 class ActionController implements IController {
@@ -9,6 +11,7 @@ class ActionController implements IController {
     public path = '/action';
     public router = Router();
     private actionService = new ActionService();
+    private rexourceService = new RexourceService();
 
     constructor()
     {
@@ -54,7 +57,6 @@ class ActionController implements IController {
         const limit = req.query.limit
 
         const actions = await this.actionService.actions(Number(page), Number(limit))
-        console.log(actions)
         return res.sendSuccess(actions, `Created`)
     } 
 
@@ -68,45 +70,20 @@ class ActionController implements IController {
             const { page, name, description } = req?.body
             if(!mongoose.isValidObjectId(page)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                 message: 'Invalid parameter passed',
-                 data: { },
-                 statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             }
             if(!name || !description)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+                responseFormat('Attempt to all field', 400, null)
             } else {
                 const NewlyCreated = await this.actionService.create(page, name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${NewlyCreated} created`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)  
         }
     }
 
@@ -120,46 +97,21 @@ class ActionController implements IController {
             const { action, name, description } = req?.body
             if(!mongoose.isValidObjectId(action)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             }
 
             if(!name || !description)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+                responseFormat('Attempt to all field', 400, null)
             } else {
                 await this.actionService.update(action, name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Action updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `Action updated`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)  
         }
     }
 
@@ -173,35 +125,16 @@ class ActionController implements IController {
             const { page, action } = req?.body
             if(!mongoose.isValidObjectId(action)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.actionService.remove(page, action)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} deleted`)                
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)  
         }
     }
 
@@ -215,35 +148,16 @@ class ActionController implements IController {
             const { action } = req?.body
             if(!mongoose.isValidObjectId(action)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.actionService.restore(action)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} restored`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} restored`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)  
         }
     }
 
@@ -257,24 +171,16 @@ class ActionController implements IController {
             const { page, action } = req?.body
             if(!mongoose.isValidObjectId(page) || !mongoose.isValidObjectId(action) ) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.actionService.delete(page, action)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} permanently deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} permanently deleted`)
             }
         } catch (error: any) {
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)  
         }
     } 
 
@@ -287,8 +193,14 @@ class ActionController implements IController {
         {
             const { role, rexource, page, action, status } = req?.body
             const aktions = await this.actionService.permission(role, rexource, page, action, status)
-            res.sendSuccess(aktions, '')
+            const resourceActions = await this.rexourceService.rexourcesPageAktions(role, rexource)
+            res.sendSuccess(resourceActions, aktions)
+
         } catch (error: any) {
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)  
         }
     } 
     

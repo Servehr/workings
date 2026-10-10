@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import CategoryService from "@/service/management/category.service";
 import mongoose from "mongoose";
+import { errorProps, responseFormat } from "@/utils/response-format";
 
 
 class CategoryController implements IController {
@@ -50,14 +51,8 @@ class CategoryController implements IController {
         const page = req.query.page
         const limit = req.query.limit
         
-        const categories = await this.categoryService.categories(Number(page), Number(limit));
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All categories',
-          data: categories,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        const categories = await this.categoryService.categories(Number(page), Number(limit))
+        return res.sendSuccess(categories, `All categories`)
     }
 
     private create = async (
@@ -69,36 +64,17 @@ class CategoryController implements IController {
         {
             const { name, description } = req?.body
             if(!name && !description)
-            {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+            {    
+               responseFormat('Attempt to all field', 400, null)
             }
             const NewlyCreated = await this.categoryService.create(name, description)
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: `${NewlyCreated} created`,
-               data: { },
-               statusCode: 200
-            }
-            res.status(200).json(data)
+            return res.sendSuccess({}, `${NewlyCreated} created`)
             
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     }
 
@@ -112,35 +88,16 @@ class CategoryController implements IController {
             const { category, name, description } = req?.body
             if(!mongoose.isValidObjectId(category)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed 1',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 await this.categoryService.update(category, name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Category updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `Category updated`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     }
 
@@ -153,36 +110,17 @@ class CategoryController implements IController {
         {
             const { category } = req?.body
             if(!mongoose.isValidObjectId(category) || !category) 
-            {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+            { 
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.categoryService.remove(category)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     }
 
@@ -196,35 +134,17 @@ class CategoryController implements IController {
             const { category } = req?.body
             if(!mongoose.isValidObjectId(category) || !category) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
+               
             } else {
                 const deetedAt = await this.categoryService.restore(category)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} restored`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} restored`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     }
 
@@ -238,35 +158,17 @@ class CategoryController implements IController {
             const { category } = req?.body
             if(!mongoose.isValidObjectId(category) || !category) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
+
             } else {
                 const deetedAt = await this.categoryService.delete(category)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} permanently deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} permanently deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+             let err = JSON.parse(error.message)
+             const { errMsg, code, data } = errorProps(err)
+             res.sendError(errMsg, code, data)
         }
     }    
 

@@ -35,13 +35,7 @@ class NotificationController implements IController {
 
        const { phoneNumber, message } = req.body
        const notify = await this.notificationService.SendSms(phoneNumber, message);
-       const data: { message: string, data: object, statusCode: number } = 
-       {
-         message: notify,
-         data: { },
-         statusCode: 200
-       }
-       res.status(200).json(data)
+       return res.sendSuccess({}, notify)
     }
 
 }

@@ -1,6 +1,6 @@
 import Category from "@/model/management/category";
 import { paginate } from "@/utils/pagination";
-import mongoose from "mongoose";
+import { responseFormat } from "@/utils/response-format";
 
 
 
@@ -46,15 +46,10 @@ class CategoryService {
        const categoryToUpdate = await Category.findOne({ _id: category })
        if(!categoryToUpdate)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = {
-            message: 'Invalid request passed 3',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))         
-        }
-        await Category.updateOne({ _id: category }, { $set: { name: name, description: description } }) 
-        return categoryToUpdate?.name
+          responseFormat('Invalid request passed', 400, null)       
+       }
+       await Category.updateOne({ _id: category }, { $set: { name: name, description: description } }) 
+       return categoryToUpdate?.name
     }
 
 
@@ -63,16 +58,10 @@ class CategoryService {
        const RemoveCategory = await Category.findOne({ _id: category })
        if(!RemoveCategory)
        {
-          let RESPONSE: { message: string, statusCode: number, data: any } = 
-          {
-            message: 'Invalid request passed',
-            statusCode: 404,
-            data: null
-          }
-          throw new Error(JSON.stringify(RESPONSE))
-        }
-        await Category.updateOne({ _id: category }, { $set: { deletedAt: new Date() } })
-        return RemoveCategory?.name
+          responseFormat('Invalid request passed', 400, null)
+       }
+       await Category.updateOne({ _id: category }, { $set: { deletedAt: new Date() } })
+       return RemoveCategory?.name
     }
 
 
@@ -81,13 +70,7 @@ class CategoryService {
         const RestoreCategory = await Category.findOne({ _id: category })
         if(!RestoreCategory)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
         }
         await Category.updateOne({ _id: category }, { $set: { deletedAt: null } })
         return RestoreCategory?.name
@@ -99,13 +82,7 @@ class CategoryService {
         const DeleteCategory = await Category.findOne({ _id: category })
         if(!DeleteCategory)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+          responseFormat('Invalid request passed', 400, null)
         }
         await Category.deleteOne({ _id: category })
         return DeleteCategory?.name

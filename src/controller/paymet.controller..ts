@@ -4,6 +4,7 @@ import JobService from "@/service/job.service";
 import mongoose from "mongoose";
 import axios from "axios";
 import Payment from "@/model/payment";
+import { responseFormat } from "@/utils/response-format";
 
 
 class PaymentController implements IController {
@@ -48,7 +49,8 @@ class PaymentController implements IController {
                     },
                 }
             );
-            res.status(200).json(response.data);
+            return res.sendSuccess(response.data, ``)
+
         } catch (error) {
             res.status(500).json(error);
         }
@@ -65,13 +67,7 @@ class PaymentController implements IController {
             const { reference, user } = req.body
             if(!mongoose.isValidObjectId(user)) 
             {    
-              const data: { message: string, data: object, statusCode: number } = 
-              {
-                message: 'Invalid parameter passed',
-                data: { },
-                statusCode: 404
-              }
-              res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const response = await axios.get(`${process.env.PAYSTACK_VERIFY_PAYMENT}/${reference}`,
                     {

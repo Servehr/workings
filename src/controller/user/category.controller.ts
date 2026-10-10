@@ -28,7 +28,7 @@ class CategoryController implements IController {
     ): Promise<Response | void> => 
     {
         // const allUsers = await this.categoryService.categories()
-        // res.status(200).json(allUsers)
+        //return res.sendSuccess(allUsers, ``)
     }
 
 }

@@ -2,6 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import LgaService from "@/service/management/location/lga.service";
 import mongoose from "mongoose";
+import { errorProps, responseFormat } from "@/utils/response-format";
 
 
 class LgaController implements IController {
@@ -46,14 +47,12 @@ class LgaController implements IController {
         res: Response,
         next: NextFunction
     ) : Promise<Response | void> => {
-        const categories = await this.lgaService.lgas();
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All Local Government Area',
-          data: categories,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        
+        const page = req.query.page
+        const limit = req.query.limit
+
+        const categories = await this.lgaService.lgas(Number(page), Number(limit));
+        return res.sendSuccess(categories, ``);
     }
 
     private create = async (
@@ -65,36 +64,17 @@ class LgaController implements IController {
         {
             const { country, state, name } = req?.body
             if(!name)
-            {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+            {  
+               responseFormat('Attempt to all field', 400, null)
             } else {
-                const NewlyCreated = await this.lgaService.create(country.toLowerCase(), state.toLowerCase(), name.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+               const NewlyCreated = await this.lgaService.create(country.toLowerCase(), state.toLowerCase(), name.toLowerCase())
+               return res.sendSuccess(NewlyCreated, `Created`);
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -105,49 +85,23 @@ class LgaController implements IController {
     ): Promise<Response | void> => {
         try 
         {
-            const { lga, name } = req?.body
-            if(!mongoose.isValidObjectId(lga)) 
-            {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
-            }
-
-            if(!name)
-            {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
-            } else {
-                await this.lgaService.update(lga, name.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Lga updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
-            }
+           const { lga, name } = req?.body
+           if(!mongoose.isValidObjectId(lga)) 
+           {    
+              responseFormat('Invalid parameter passed', 400, null)
+           }
+           if(!name)
+           {             
+              responseFormat('Attempt to all field', 400, null)   
+           } else {
+              await this.lgaService.update(lga, name.toLowerCase())
+              return res.sendSuccess('Updated', ``);
+           }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+           let err = JSON.parse(error.message)
+           const { errMsg, code, data } = errorProps(err)
+           res.sendError(errMsg, code, data)
         }
     }
 
@@ -161,35 +115,16 @@ class LgaController implements IController {
             const { lga } = req?.body
             if(!mongoose.isValidObjectId(lga)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
-                const deetedAt = await this.lgaService.remove(lga)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+               const deetedAt = await this.lgaService.remove(lga)
+               return res.sendSuccess(`${deetedAt} deleted`, ``)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -203,35 +138,16 @@ class LgaController implements IController {
             const { lga } = req?.body
             if(!mongoose.isValidObjectId(lga)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
-                const deetedAt = await this.lgaService.restore(lga)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} restored`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+               const deetedAt = await this.lgaService.restore(lga)
+               return res.sendSuccess(`${deetedAt} restored`, ``)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }
 
@@ -245,35 +161,16 @@ class LgaController implements IController {
             const { lga } = req?.body
             if(!mongoose.isValidObjectId(lga)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.lgaService.delete(lga)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} permanently deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess(`${deetedAt} permanently deleted`, `Updated`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+                    
+            let err = JSON.parse(error.message)
+            const { errMsg, code, data } = errorProps(err)
+            res.sendError(errMsg, code, data)
         }
     }    
 

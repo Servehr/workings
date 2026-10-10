@@ -1,7 +1,7 @@
 import Page from "@/model/management/page";
-import Authority from "@/model/management/authority";
 import Rexource from "@/model/management/rexource";
 import { paginate, PaginationOptions } from "@/utils/pagenation";
+import { responseFormat } from "@/utils/response-format";
 // import { paginate } from "@/utils/pagination";
 import mongoose from "mongoose";
 
@@ -41,7 +41,6 @@ class PageService {
 
     public async pageActions(page: string): Promise<Error | String | any>
     {
-       console.log("!!!!!!!!!!!!!!!!!!!!!!")
        return await Page.findOne({ _id: page }).populate([ {  path: 'aktions' }])
     }    
 
@@ -56,12 +55,7 @@ class PageService {
         const pageToUpdate = await Page.findOne({ _id: page })
         if(!pageToUpdate)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))         
+           responseFormat('Invalid request passed', 400, null)         
         }
         await Page.updateOne({ _id: page }, { $set: { name: name, description: description } }) 
         return pageToUpdate?.name
@@ -72,13 +66,7 @@ class PageService {
         const RemovePage = await Page.findOne({ _id: page })
         if(!RemovePage)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+           responseFormat('Invalid request passed', 400, null)
         }
         await Page.updateOne({ _id: page }, { $set: { deletedAt: new Date() } })
         return RemovePage?.name
@@ -89,13 +77,7 @@ class PageService {
         const RestorePage = await Page.findOne({ _id: page })
         if(!RestorePage)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+           responseFormat('Invalid request passed', 400, null)
         }
         await Page.updateOne({ _id: page }, { $set: { deletedAt: null } })
         return RestorePage?.name
@@ -106,24 +88,13 @@ class PageService {
       const theRexource = Rexource.findOne({ _id: rexource })
       if(!theRexource)
       {
-        let RESPONSE: { message: string, statusCode: number, data: any } = {
-           message: 'Invalid request passed',
-           statusCode: 404,
-           data: null
-        }
-        throw new Error(JSON.stringify(RESPONSE)) 
+         responseFormat('Invalid request passed', 400, null) 
       }
       
       const DeletePage = await Page.findOne({ _id: page })
       if(!DeletePage)
       {
-        let RESPONSE: { message: string, statusCode: number, data: any } = 
-        {
-           message: 'Invalid request passed',
-           statusCode: 404,
-           data: null
-        }
-        throw new Error(JSON.stringify(RESPONSE))
+         responseFormat('Invalid request passed', 400, null)
       }
       
       await Rexource.findByIdAndUpdate(rexource, 
@@ -139,14 +110,8 @@ class PageService {
        const DoesRexourceExsit = await Rexource.findOne({ _id: rexource })
        if(!DoesRexourceExsit) 
        {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed 1',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
-        }      
+         responseFormat('Invalid request passed', 400, null)
+       }      
        const rexources = await Rexource.findOne({ _id: rexource }, { '_id': 0, 'department': 0, 'deletedAt': 0, 'name': 0, 'description': 0, 'createdAt': 0, 'updatedAt': 0, '__v': 0 })
                            .populate([ {  path: 'pages',  select: 'pages' }])
        return rexources       
@@ -154,8 +119,6 @@ class PageService {
 
     public async connectPageToRexource(rexource: string, pages: string[]): Promise<Error | string | any>
     {
-       console.log("Bread")
-       console.log(pages)
        let InvalidPage: string[] = []
        let ValidPage: string[] = []
        let Pages = await Page.find({}, '_id')
@@ -175,16 +138,10 @@ class PageService {
             ValidPage.push(pages[index])
          }
        }
-       console.log("1")
+       
        if(InvalidPage?.length > 0)
        {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-            message: 'Invalid request passed 2',
-            statusCode: 404,
-            data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE)) 
+         responseFormat('Invalid request passed', 400, null) 
        }
 
        let connectedPages = await this.rexourcePages(rexource)
@@ -192,7 +149,6 @@ class PageService {
        let Invalid: string[] = []
        let Valid: string[] = []
 
-       console.log("2")
        let ConnectedPageId: string[] = []
        if(connectedPages?.pages?.length > 0)
        {
@@ -220,28 +176,17 @@ class PageService {
          console.log(Valid)
          if(Valid?.length === 0)
          {
-            let RESPONSE: { message: string, statusCode: number, data: any } = 
-            {
-               message: `${InvalidPageName.join(", ")} already connected or invalid`,
-               statusCode: 404,
-               data: null
-            }
-            throw new Error(JSON.stringify(RESPONSE)) 
+            responseFormat(`${InvalidPageName.join(", ")} already connected or invalid`, 400, null)
          }
 
-         //  console.log(Valid)
-         console.log("3")
          let ValidPagesName: string[] = []
          for (let index = 0; index < Valid.length; index++) 
          {
             const pName = await Page.findOne({ _id: Valid[index] })
             ValidPagesName.push(pName?.name)
-            //  console.log(pName?.name)
          }
 
          let TheValidPagesName = ValidPagesName?.join(", ")
-         console.log("Check am well")
-         console.log(Valid)
          await Rexource.findByIdAndUpdate(rexource, 
             { $push: { pages: Valid } }, 
             { new: true }
@@ -249,28 +194,19 @@ class PageService {
 
          for (let index = 0; index < Valid.length; index++) 
          {
-            console.log(Valid[index])
             await Page.updateOne({ _id: Valid[index] }, { $set: { rexource: rexource } }) 
          }
 
-         
-         console.log("4")
-
-         // console.log(rexource)
          const RexourceName = await Rexource.findById(rexource)
-         // console.log(RexourceName)
          const rName: string = RexourceName?.name
-         // console.log(rName)
-         // console.log("#############")
          let message = `${TheValidPagesName} attached to ${rName}`
          if(Invalid?.length > 0)
          {
             message += `AND ${InvalidPageName.join(", ")} already connected or invalid`
          }
-         console.log("+++++++yyy++++++")
          return message
        } else {
-           console.log("5")
+         
            let ConnectPageName: string[] = []
            for (let index = 0; index < ValidPage.length; index++) 
            {
@@ -286,9 +222,6 @@ class PageService {
            
           const RexourceName = await Rexource.findById(rexource)
           const rName: string = RexourceName?.name
-
-         //  await Authority.create({ '', '', '' })
-          console.log("++++vvvvvvvvvvv+++++")
           let message = `${ConnectPageName} attached to ${rName}`
           return message
        }      
@@ -296,9 +229,6 @@ class PageService {
 
     public async disconnectPageFromRexource(rexource: string, pages: string[]): Promise<Error | string | any>
     {
-       console.log("Coming Dayz")
-       console.log(pages)
-       console.log(rexource)
        let InvalidPage: string[] = []
        let ValidPage: string[] = []
        let Pages = await Page.find({}, '_id')
@@ -321,26 +251,14 @@ class PageService {
 
        if(InvalidPage?.length > 0)
        {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-            message: 'Invalid request passed 2',
-            statusCode: 404,
-            data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE)) 
+         responseFormat('Invalid request passed', 400, null) 
        }
 
        let connectedPages = await this.rexourcePages(rexource)
 
        if(connectedPages?.pages?.length === 0)
        {
-         let RESPONSE: { message: string, statusCode: number, data: any } = 
-         {
-            message: 'No relation to request issued',
-            statusCode: 404,
-            data: null
-         }
-         throw new Error(JSON.stringify(RESPONSE)) 
+         responseFormat('Invalid request passed', 400, null)  
        }
        
        let Invalid: string[] = []

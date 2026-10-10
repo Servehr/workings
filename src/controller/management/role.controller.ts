@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from "express"
 import IController from "@/interfaceIController"
 import RoleService from "@/service/management/role.service";
 import mongoose from "mongoose";
-import { errorResponse } from "@/utils/response-format";
+import { errorResponse, responseFormat } from "@/utils/response-format";
 
 
 class RoleController implements IController {
@@ -67,13 +67,7 @@ class RoleController implements IController {
         const limit = req.query.limit
 
         const categories = await this.roleService.roles(Number(page), Number(limit));
-        const data: { message: string, data: object, statusCode: number } = 
-        {
-          message: 'All Roles',
-          data: categories,
-          statusCode: 200
-        }
-        res.status(200).json(data)
+        return res.sendSuccess(categories, `All Roles`)
     }
 
     private create = async (
@@ -86,36 +80,14 @@ class RoleController implements IController {
             const { name, description } = req?.body
             if(!name || !description)
             {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+                responseFormat('Attempt to all field', 400, null)
             } else {
                 const NewlyCreated = await this.roleService.create(name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${NewlyCreated} created`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${NewlyCreated} created`)
             }
         } catch (error: any) { 
-            errorResponse(res, error) 
-            // const err = JSON.parse(error.message)
-            // const errMsg = err.message 
-            // const code = err.statusCode
             
-            // const data: { message: string, data: object, statusCode: number } = 
-            // {
-            //    message: errMsg,
-            //    data: { },
-            //    statusCode: code
-            // }
-            // res.status(code).json(data)
+            errorResponse(res, error) 
         }
     }
 
@@ -129,46 +101,19 @@ class RoleController implements IController {
             const { role, name, description } = req?.body
             if(!mongoose.isValidObjectId(role)) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             }
 
             if(!name || !description)
-            {                
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Attempt to all field',
-                    data: { },
-                    statusCode: 404
-                }
-                res.status(404).json(data)
+            {         
+                responseFormat('Attempt to all field', 400, null)
             } else {
                 await this.roleService.update(role, name.toLowerCase(), description.toLowerCase())
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: 'Role updated',
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `Role update`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+         
+            errorResponse(res, error)
         }
     }
 
@@ -183,35 +128,15 @@ class RoleController implements IController {
             
             if(!mongoose.isValidObjectId(role) || !role) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
+
             } else {
                 const deetedAt = await this.roleService.remove(role)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            errorResponse(res, error)
         }
     }
 
@@ -225,35 +150,14 @@ class RoleController implements IController {
             const { role } = req?.body
             if(!mongoose.isValidObjectId(role) || !role) 
             {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+               responseFormat('Invalid parameter passed', 400, null)
             } else {
                 const deetedAt = await this.roleService.restore(role)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} restored`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} deleted`)
             }
         } catch (error: any) {
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
             
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)
+            errorResponse(res, error)
         }
     }
 
@@ -266,25 +170,16 @@ class RoleController implements IController {
         {
             const { role } = req?.body
             if(!mongoose.isValidObjectId(role) || !role) 
-            {    
-               const data: { message: string, data: object, statusCode: number } = 
-               {
-                  message: 'Invalid parameter passed',
-                  data: { },
-                  statusCode: 404
-               }
-               res.status(404).json(data)
+            {  
+               responseFormat('Invalid parameter passed', 400, null)
+
             } else {
                 const deetedAt = await this.roleService.delete(role)
-                const data: { message: string, data: object, statusCode: number } = 
-                {
-                    message: `${deetedAt} permanently deleted`,
-                    data: { },
-                    statusCode: 200
-                }
-                res.status(200).json(data)
+                return res.sendSuccess({}, `${deetedAt} permanently deleted`)
             }
         } catch (error: any) {
+            
+            errorResponse(res, error)
         }
     }
 
@@ -299,37 +194,15 @@ class RoleController implements IController {
             const { department, role } = req?.body
             if(!mongoose.isValidObjectId(department) && !!mongoose.isValidObjectId(role)) 
             {    
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-                message: 'Invalid parameter passed',
-                data: { },
-                statusCode: 404
-            }
-            res.status(404).json(data)
+                responseFormat('Invalid parameter passed', 400, null)
             } else {
-            const departmentRoles = await this.roleService.departmentRoleAssignment(department, role)
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-                message: departmentRoles!,
-                data: {  },
-                statusCode: 200
-            }
-            res.status(200).json(data)
+                const departmentRoles = await this.roleService.departmentRoleAssignment(department, role)
+                return res.sendSuccess({}, departmentRoles!) 
             }
             
         } catch (error: any) {
             
-            const err = JSON.parse(error.message)
-            const errMsg = err.message 
-            const code = err.statusCode
-            
-            const data: { message: string, data: object, statusCode: number } = 
-            {
-               message: errMsg,
-               data: { },
-               statusCode: code
-            }
-            res.status(code).json(data)   
+            errorResponse(res, error)   
         }
     }  
     
@@ -343,9 +216,11 @@ class RoleController implements IController {
       {
          const { role, rexource } = req.body
          const roleResources = await this.roleService.roleResourceLink(role, rexource)
-         return res.sendSuccess(roleResources, roleResources)                
+         return res.sendSuccess(roleResources, roleResources)      
+
       } catch (error: any) {         
-          errorResponse(res, error)             
+         
+         errorResponse(res, error)             
       }
     }
     
@@ -358,8 +233,10 @@ class RoleController implements IController {
       {
          const { role, rexource } = req.body
          const roleResourcesLink = await this.roleService.roleResourceUnlink(role, rexource)
-         return res.sendSuccess(roleResourcesLink, roleResourcesLink)                
-      } catch (error: any) {        
+         return res.sendSuccess(roleResourcesLink, roleResourcesLink)        
+                 
+      } catch (error: any) {  
+
           errorResponse(res, error)           
       }
     }
@@ -373,8 +250,10 @@ class RoleController implements IController {
       {
          const role = req.query.role as string
          const roleResources = await this.roleService.roleResources(role)
-         return res.sendSuccess(roleResources, '')                
+         return res.sendSuccess(roleResources, '')          
+
       } catch (error: any) {        
+
           errorResponse(res, error)           
       }
     }

@@ -35,10 +35,7 @@ class RexourceService {
        ).lean()       
        // Designated rexource page action
        const rolePermisson = await Permission.findOne({ role: role }, 'priviledge')
-      //  console.log(rolePermisson)
-       // Application rexource page action
        const permission = rexource[0]?.pages
-      //  console.log(permission)
               
        for(let index = 0; index < permission?.length; index++) 
        {
@@ -46,37 +43,31 @@ class RexourceService {
          let actionLength = 0
          // Application pageId
          let pageId: string = permission[index]?._id
-         // console.log(pageId)
-         // Application actions
          const pageAktions = permission[index]?.aktions     // actions
-         // console.log(pageAktions)
          // deignated actions
          const designateAktions = rolePermisson?.priviledge //  page, actions
-         // console.log(designateAktions)
-
-         for(let xedni = 0; xedni < designateAktions.length; xedni++)
+         if(designateAktions?.length > 0)
          {
-            // console.log(designateAktions[xedni])
-            // console.log(pageId)
-            // console.log(designateAktions[xedni]?.page)
-            // console.log("*************************************************")
-           if(pageId?.toString() === designateAktions[xedni]?.page?.toString())
+           for(let xedni = 0; xedni < designateAktions.length; xedni++)
            {
-             const designatedPageAktion = designateAktions[xedni]?.aktions             
-             
-             for (let act = 0; act < pageAktions.length; act++) 
+             if(pageId?.toString() === designateAktions[xedni]?.page?.toString())
              {
-               actionLength = act
-               if(designatedPageAktion?.includes(pageAktions[act]?._id))
+               const designatedPageAktion = designateAktions[xedni]?.aktions  
+               
+               for (let act = 0; act < pageAktions.length; act++) 
                {
-                  allSelected = allSelected + 1
-                  Object.assign(pageAktions[act], { status: true })
-               } else {
-                  Object.assign(pageAktions[act], { status: false })
+                  actionLength = act
+                  if(designatedPageAktion?.includes(pageAktions[act]?._id))
+                  {
+                     allSelected = allSelected + 1
+                     Object.assign(pageAktions[act], { status: true })
+                  } else {
+                     Object.assign(pageAktions[act], { status: false })
+                  }
                }
              }
-           }
-         }             
+           } 
+         }            
          permission[index]['actionLength'] = actionLength+1    
          permission[index]['all'] = allSelected 
        }
@@ -96,12 +87,7 @@ class RexourceService {
         const rexourceToUpdate = await Rexource.findOne({ _id: rexource })
         if(!rexourceToUpdate)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))         
+         responseFormat('Invalid request passed', 400, null)         
         }
         await Rexource.updateOne({ _id: rexource }, { $set: { name: name, description: description } }) 
         return rexourceToUpdate?.name
@@ -113,13 +99,7 @@ class RexourceService {
         const RemoveRexource = await Rexource.findOne({ _id: rexource })
         if(!RemoveRexource)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+           responseFormat('Invalid request passed', 400, null) 
         }
         await Rexource.updateOne({ _id: rexource }, { $set: { deletedAt: new Date() } })
         return RemoveRexource?.name
@@ -131,13 +111,7 @@ class RexourceService {
         const RestoreRexource = await Rexource.findOne({ _id: rexource })
         if(!RestoreRexource)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+           responseFormat('Invalid request passed', 400, null) 
         }
         await Rexource.updateOne({ _id: rexource }, { $set: { deletedAt: null } })
         return RestoreRexource?.name
@@ -149,13 +123,7 @@ class RexourceService {
         const DeleteRexource = await Rexource.findOne({ _id: rexource })
         if(!DeleteRexource)
         {
-           let RESPONSE: { message: string, statusCode: number, data: any } = 
-           {
-              message: 'Invalid request passed',
-              statusCode: 404,
-              data: null
-           }
-           throw new Error(JSON.stringify(RESPONSE))
+           responseFormat('Invalid request passed', 400, null) 
         }
         await Rexource.deleteOne({ _id: rexource })
         return DeleteRexource?.name
